@@ -1,7 +1,6 @@
 import React from 'react';
 import logo from '../assets/cinechipsLogo.png'
-import { HiOutlineHome } from 'react-icons/hi';
-import { FaUser, FaBell, FaCog } from "react-icons/fa";
+import { FaSearch } from "react-icons/fa";
 
 const Navbar = () => {
   return (
@@ -9,27 +8,45 @@ const Navbar = () => {
       <img 
         src={logo} 
         alt="logo" 
-        className='w-40 h-15 ml-3 object-contain'
+        className='w-40 h-15 ml-5 mt-3 object-contain'
       />
 
-      {/* home button */}
-      <div className="flex items-center space-x-3">
+      {/* buttons */}
+      <div className="flex ml-6 mt-3 items-center space-x-5">
         <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
-          <FaUser className="w-5 h-5" />
-          <span>Home</span>
+          <span style={{fontFamily:'Saira'}} className='text-sm'>HOME</span>
+
         </button>
-        <button className="text-[#ffd602] p-2  hover:text-[#e6c500]">
-          <FaBell className="w-5 h-5" />
+        <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
+          <span style={{fontFamily:'Saira'}} className='text-sm'>SHOWING</span>
         </button>
-        <button className="text-[#ffd602] p-2  hover:text-[#e6c500]">
-          <FaCog className="w-5 h-5" />
+
+        <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
+          <span style={{fontFamily:'Saira'}} className='text-sm'>DELAYS</span>
         </button>
       </div>
+
+      {/* search bar */}
+      <div>
+        <FaSearch className="text-[#ffd602]"/>
+
+        <input 
+          type="text"
+          placeholder="Search"
+          className=" text-[#ffd602] ml-3 w-full placeholder-[#e6c500] focus:outline-none font-saira"
+        />
+      </div>
+
+
 
     </nav>
   )
 }
 
 export default Navbar
+
+
+
+
 
 
