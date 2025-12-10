@@ -1,17 +1,15 @@
-import { useState } from 'react'
-
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
+import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <div className="bg-[#222222] min-h-screen" >
-    <Navbar/>
-
-    <Home/>
-    
+      <Router>
+        <Navbar/>
+        <Home/>
+      </Router>
     </div>
   );
 }

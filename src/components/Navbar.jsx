@@ -1,6 +1,7 @@
 import React from 'react';
 import logo from '../assets/cinechipsLogo.png'
 import { FaSearch } from "react-icons/fa";
+import EasyButton from '../components/BtnCompo';
 
 const Navbar = () => {
   return (
@@ -14,10 +15,11 @@ const Navbar = () => {
 
         {/* buttons */}
         <div className="flex ml-6 items-center space-x-5">
+
           <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
             <span style={{fontFamily:'Saira'}} className='text-sm'>HOME</span>
-
           </button>
+ 
           <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
             <span style={{fontFamily:'Saira'}} className='text-sm'>SHOWING</span>
           </button>
