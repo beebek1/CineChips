@@ -5,12 +5,18 @@ import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
 function App() {
 
   return (
-    <div className="bg-[#222222] min-h-screen" >
       <Router>
-        <Navbar/>
-        <Home/>
-      </Router>
-    </div>
+        <div className="bg-[#222222] min-h-screen">
+
+        {/* Navbar stays OUTSIDE routes */}
+        <Navbar />
+
+        <Routes>
+          <Route path="/" element={<Home />} />
+        </Routes>
+      </div>
+    </Router>
+      
   );
 }
 

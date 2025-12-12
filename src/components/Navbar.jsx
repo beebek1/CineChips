@@ -1,5 +1,5 @@
 import React from 'react';
-import logo from '../assets/cinechipsLogo.png'
+import logo from '../assets/cinechipsLogo.svg'
 import { FaSearch } from "react-icons/fa";
 import EasyButton from '../components/BtnCompo';
 
