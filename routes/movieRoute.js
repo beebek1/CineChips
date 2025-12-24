@@ -1,7 +1,9 @@
 const router = require('express').Router();
 
-const {addMovie} = require('../controllers/adminController');
+const {addMovie, addShowTime, deleteMovie} = require('../controllers/adminController');
 
 router.post("/addmovie", addMovie);
+router.post("/addshowtime", addShowTime);
+router.delete("/:id", deleteMovie);
 
 module.exports = router;
