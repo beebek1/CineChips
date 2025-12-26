@@ -1,15 +1,7 @@
 const User = require("../models/userModel.js");
 const bcrypt = require("bcrypt");
-
-const getAllUsers = async (req, res) => {
-  try {
-    const users = await User.findAll({attributes: { id, email, username}});   //exclude: ['password']
-    return res.json(users);
-  } catch (error) {
-    return res.status(500).json({ message: "Server error", error: error.message });
-  }
-};
-
+const crypto = require("crypto");
+const sendEmail = require("../helpers/sendEmail.js");
 
 const getUserById = async (req, res) => {
   try {
@@ -25,39 +17,67 @@ const getUserById = async (req, res) => {
       error : error.message
     });
   } 
-
 }
 
-// const isUser = await User.findOne({ where: { username } });
-// const isEmail = await User.findOne({ where: { email } });
-// if(isUser || isEmail){
-//   return res.status(400).json({
-//     message: "Username or Email already exists"
-//   });
-// }
 
+//registring user
 const addUser = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { username, email, password, role } = req.body;
 
     if (!username || !email || !password) {
       return res.status(400).json({
         message: "All fields are required"
       });
+    }else if (!role){
+      return res.status(400).json({message: "role missing"});
+    }
+    
+    //search for similar email
+    const user = await User.findOne({where:{email : email}})
+    if(user){
+      return res.status(400).json({
+        message: `user with this email already exists ${email}`
+      })
     }
 
+    //generating verificationToken
+    const verificationToken = crypto.randomBytes(32).toString("hex");
+
+    //verificationToken expires within 1 hour
+    const verificationTokenExpires = new Date(Date.now()+ 1 * 60 * 60 * 1000);
+
+    //for hasing the password
     const hashedPassword = bcrypt.hashSync(password, 10);
 
+    //adding user to database
     const newUser = await User.create({
       username,
       email,
-      password : hashedPassword
+      password : hashedPassword,
+      role,
+      verificationToken,
+      verificationTokenExpires
     });
 
-    res.status(201).json({
+    const verifyLink = `http://localhost:3000/api/user/verify-email?token=${verificationToken}`
+
+      await sendEmail(
+        email,
+        "Verify you Email address",
+        `
+          <h2>verify your identity</h2>
+          <p>if you haven't login from email then don't veirfy your email</p>
+          <a href= ${verifyLink}>Click to Verify</a>
+
+        `
+      )
+
+      return res.status(201).json({
       message: "User added successfully",
       user: newUser
     });
+
   } catch (error) {
     res.status(500).json({
       message: "Server error",
@@ -93,9 +113,13 @@ const updateUser = async (req, res) =>{
       user,
     })
 
-  }catch{
-
+  }catch(error) {
+    message= "server side error",
+    error = error.message
   }
 }
 
-module.exports = { addUser, getAllUsers, getUserById, updateUser};
+
+
+
+module.exports = { addUser, getUserById, updateUser};

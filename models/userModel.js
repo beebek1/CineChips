@@ -30,9 +30,25 @@ const User = sequelize.define(
         },
 
         role: {
-            type: DataTypes.ENUM("user", "admin"),
+            type: DataTypes.ENUM("user", "org"),
             defaultValue: "user"
+        },
+
+        isVerified: {
+            type: DataTypes.BOOLEAN,
+            allowNull: true
+        },
+
+        verificationToken: {
+            type: DataTypes.STRING,
+            allowNull: true
+        },
+
+        verificationTokenExpires: {
+            type: DataTypes.DATE,
+            allowNull:true
         }
+
     },
     {
         tableName: "users",
