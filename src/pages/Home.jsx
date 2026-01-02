@@ -98,15 +98,11 @@ const Home = () => {
               NEW MOVIES EVERY SUNDAY ON
             </h1>
 
-            <div className='absolute top-15 left-136'>
               <h1 
                 className=' font-semibold text-[#ffd602] text-3xl z-1' 
                 style={{fontFamily:'MuseoModerno', letterSpacing: "1px"}}> 
                 CINECHIPS
               </h1>
-
-              <img src={Underline} alt="underline" className='absolute left-0 -bottom-2 w-60 -rotate-182 z-0' />
-            </div>
 
           </div>
 
@@ -122,9 +118,6 @@ const Home = () => {
               This site does not store any files on our server, we only linked to the media which is hosted on 3rd party.
             </p>
           </div>
-
-
-
         </div>
 
 

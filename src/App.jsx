@@ -1,23 +1,33 @@
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
-import { BrowserRouter as Router, Routes, Route} from 'react-router-dom'
+import SignUp from './pages/signup'
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 
-function App() {
+
+function AppWrapper() {
+  const location = useLocation();
+  const hideNavbar = location.pathname === '/signup';
 
   return (
-      <Router>
-        <div className="bg-[#222222] min-h-screen">
-
-        {/* Navbar stays OUTSIDE routes */}
-        <Navbar />
-
-        <Routes>
-          <Route path="/" element={<Home />} />
-        </Routes>
-      </div>
-    </Router>
-      
+    <>
+      {!hideNavbar && <Navbar />}
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/signup" element={<SignUp />} />
+      </Routes>
+    </>
   );
 }
 
-export default App
+
+function App() {
+  return (
+    <Router>
+      <div className="bg-[#222222] min-h-screen">
+        <AppWrapper />
+      </div>
+    </Router>
+  );
+}
+
+export default App;

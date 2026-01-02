@@ -2,8 +2,11 @@ import React from 'react';
 import logo from '../assets/cinechipsLogo.svg'
 import { FaSearch } from "react-icons/fa";
 import EasyButton from '../components/BtnCompo';
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
+  const navigate = useNavigate();
+
   return (
     <nav className='flex justify-between items-center'>
       <div className='flex items-center '>
@@ -45,16 +48,16 @@ const Navbar = () => {
         </div>
 
         {/* login button */}
-          <button className='bg-[#ffd602] h-10 w-20 mr-5 'style={{fontFamily:'Saira'}}>LOGIN</button>
+          <button
+            onClick={() => navigate("/signup")}
+            className='bg-[#ffd602] h-10 w-20 mr-5'
+            style={{fontFamily:'Saira'}}
+          >
+            LOGIN
+          </button>
      </div>
     </nav>
   )
 }
 
 export default Navbar
-
-
-
-
-
-
