@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import moviePoster from '../assets/moviePoster.png';
 import { Link } from 'react-router-dom';
-
+import { registerApi } from '../services/api';
+import toast, { Toaster } from 'react-hot-toast';
 
 
 
@@ -17,15 +18,32 @@ export default function SignupIn() {
     confirmPassword : '',
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if(!formData.email || !formData.fullName || !formData.password || !formData.confirmPassword ){
-      alert("please fill all the fields")
+      toast.error("please fill all the fields"); return
     }else if(formData.password !== formData.confirmPassword){
-      alert("confirm password didn't match")
+      toast.error("confirm password didn't match"); return
     }else if(!agreedToTerms){
-      alert("kindly agree to the terms and condition")
+      toast.error("kindly agree to the terms and condition"); return
     }
-    console.log(formData)
+    try{
+      const dataToSubmit = {
+        username: formData.fullName,
+        email: formData.email,
+        password: formData.password
+      }
+
+      const response = await registerApi(dataToSubmit);
+
+      console.log("im here ")
+      if(response.data.success){
+        toast.success("user created")
+      }else{
+        toast.error("user creation failed")
+      }
+    }catch(e){
+      console.error(e);
+    }
   };
 
 
@@ -52,6 +70,7 @@ export default function SignupIn() {
 
         {/* Right side - Form */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white overflow-hidden">
+          <Toaster position='top-right'/>
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'MuseoModerno'  }} >Sign up to CineChips</h1>
