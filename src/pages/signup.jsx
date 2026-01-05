@@ -36,8 +36,6 @@ export default function SignupIn() {
         role : activeTab
       }
 
-      console.log(dataToSubmit);
-
       await toast.promise(
       registerApi(dataToSubmit),
       {

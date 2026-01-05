@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import moviePoster from '../assets/moviePoster.png';
 import { Link } from 'react-router-dom';
+import { loginApi } from '../services/api';
+import toast, { Toaster } from 'react-hot-toast';
 
 
 export default function SignupIn() {
@@ -14,11 +16,24 @@ export default function SignupIn() {
     password : '',
   })
 
-  const handleSubmit = () => {
+  const handleSubmit = async() => {
     if(!formData.email || !formData.password){
-      return alert("please fill all the fields")
+      return toast.error("please fill all the fields")
     }
-    console.log(formData)
+
+    try{
+      
+      await toast.promise(
+        loginApi(formData),{
+          loading : <b>Checking Credentials</b>,
+          success : (res) =>{
+            return <b>{res.data.message}</b>
+          }
+        }
+      )
+    }catch(error){
+      toast.error(error?.response?.data?.message || "something went wrong ")
+    }
   };
 
 
@@ -33,6 +48,8 @@ export default function SignupIn() {
 
   return (
     <div className="flex min-h-screen overflow-hidden">
+
+      <Toaster position='top-right'/>
 
       {/* left side image */}
         <div className="hidden lg:flex lg:w-1/2 h-screen overflow-hidden relative">
