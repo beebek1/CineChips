@@ -120,6 +120,41 @@ const updateUser = async (req, res) =>{
 }
 
 
+const loginUser= async(req, res) =>{
+
+  const{email, password} = req.body;
+
+  if(!email || !password){
+    return res.status(400).json({
+      success : false,
+      message : "no email or password provided"
+    })
+  }
+
+  const user = await User.findOne({where: {email : email}});
+
+  if(!user){
+    return res.status(400).json({
+      success : false,
+      message : "email or password mismatched"
+    })
+  }
+
+  const isMatched = await bcrypt.compare(password, user.password)
+
+  if(!isMatched){
+    return res.status(400).json({
+      success : false,
+      message : "email or password mismatched"
+    })
+  }
+
+  return res.status(200).json({
+      success : true,
+      message : "user logged in"
+    })
+}
 
 
-module.exports = { addUser, getUserById, updateUser};
+
+module.exports = { addUser, getUserById, updateUser, loginUser};

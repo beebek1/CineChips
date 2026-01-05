@@ -23,6 +23,7 @@ export default function SignupIn() {
 
     try{
       
+      
       await toast.promise(
         loginApi(formData),{
           loading : <b>Checking Credentials</b>,
@@ -32,6 +33,7 @@ export default function SignupIn() {
         }
       )
     }catch(error){
+      console.log(error)
       toast.error(error?.response?.data?.message || "something went wrong ")
     }
   };

@@ -1,6 +1,12 @@
+const cors = require("cors")
 const express = require("express");
 const app = express();
 const { sequelize, connectDB } = require("./db/database")
+
+app.use(cors({
+  origin: "http://localhost:5173",  // frontend URL
+  credentials: true                  // allow cookies, auth headers
+}));
 
 //middleware
 app.use(express.json());
