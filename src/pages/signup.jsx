@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import moviePoster from '../assets/moviePoster.png';
-import { Link } from 'react-router-dom';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { registerApi } from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 
 
-
 export default function SignupIn() {
+  const [activeTab, setActiveTab] = useState('user');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+
+  const navigate = useNavigate();
 
   const[formData, setFormData] =useState({
     email : '',
@@ -30,19 +32,28 @@ export default function SignupIn() {
       const dataToSubmit = {
         username: formData.fullName,
         email: formData.email,
-        password: formData.password
+        password: formData.password,
+        role : activeTab
       }
 
-      const response = await registerApi(dataToSubmit);
+      console.log(dataToSubmit);
 
-      console.log("im here ")
-      if(response.data.success){
-        toast.success("user created")
-      }else{
-        toast.error("user creation failed")
-      }
-    }catch(e){
-      console.error(e);
+      await toast.promise(
+      registerApi(dataToSubmit),
+      {
+        loading: <b>Registering user</b>,
+        success: (res) => {
+        // redirect after showing toast
+        setTimeout(() => {
+          navigate("/signin"); 
+        }, 1000); 
+        return <b>{res.data.message}</b>;
+      },
+      },
+    );
+    }catch(error){
+      const errMessage = error.response?.data?.message || "Something went wrong";
+      toast.error(errMessage);
     }
   };
 
@@ -69,12 +80,44 @@ export default function SignupIn() {
         </div>
 
         {/* Right side - Form */}
+
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white overflow-hidden">
           <Toaster position='top-right'/>
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'MuseoModerno'  }} >Sign up to CineChips</h1>
               <p className="text-gray-600 text-sm">Where Every Movie Feels Like the First Time</p>
+            </div>
+
+          {/* section  */}
+
+            <div className="flex gap-4 mb-8">
+              <button
+                onClick={() => setActiveTab('user')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 transition-all ${
+                  activeTab === 'user'
+                    ? 'border-amber-400 bg-amber-50 text-amber-900'
+                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                <span className="font-medium">Individual Portal</span>
+              </button>
+              <button
+                onClick={() => setActiveTab('org')}
+                className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg border-2 transition-all ${
+                  activeTab === 'org'
+                    ? 'border-amber-400 bg-amber-50 text-amber-900'
+                    : 'border-gray-200 text-gray-600 hover:border-gray-300'
+                }`}
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <span className="font-medium">Admin Portal</span>
+              </button>
             </div>
 
 

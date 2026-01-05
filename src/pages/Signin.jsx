@@ -122,7 +122,7 @@ export default function SignupIn() {
                 onClick={handleSubmit}
                 className="w-full bg-[#ecb403] cursor-pointer hover:bg-[#bd9002] text-white font-semibold py-4 px-6 rounded-lg transition-colors duration-200 uppercase tracking-wide"
               >
-                Create an Account
+                SIGN IN
               </button>
 
 

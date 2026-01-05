@@ -3,7 +3,8 @@ import Home from './pages/Home'
 import SignUp from './pages/signup'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import SignIn from './pages/Signin';
-import SeatData from './pages/SeatBooking'
+import SeatData from './pages/SeatBooking';
+import Getuser from './pages/getUser';
 
 function AppWrapper() {
   const location = useLocation();
@@ -17,6 +18,7 @@ function AppWrapper() {
         <Route path="/signup" element={<SignUp />}/>
         <Route path="/signin" element={<SignIn />}/>
         <Route path="/seatbooking" element={<SeatData />}/>
+        <Route path="/getuser" element={<Getuser />}/>
       </Routes>
     </>
   );
