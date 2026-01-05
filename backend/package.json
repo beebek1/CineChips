@@ -1,0 +1,31 @@
+{
+  "name": "cinechips-backend",
+  "version": "1.0.0",
+  "description": "Backend for a movie ticket booking platform with seat maps, timing, and booking flow",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beebek1/CineChips-backend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/beebek1/CineChips-backend/issues"
+  },
+  "homepage": "https://github.com/beebek1/CineChips-backend#readme",
+  "dependencies": {
+    "bcrypt": "^6.0.0",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "nodemailer": "^7.0.12",
+    "nodemon": "^3.1.11",
+    "pg": "^8.16.3",
+    "pg-hstore": "^2.3.4",
+    "sequelize": "^6.37.7"
+  }
+}
