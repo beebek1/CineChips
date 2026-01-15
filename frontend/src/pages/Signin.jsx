@@ -1,16 +1,16 @@
-
-import React, { useState } from 'react';
+import { useState } from 'react';
 import moviePoster from '../assets/moviePoster.png';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { loginApi } from '../services/api';
-import toast, { Toaster } from 'react-hot-toast';
-
+import toast from 'react-hot-toast';
 
 export default function SignupIn() {
   const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
+  // const[isLoggedIn, setIsLoggedIn] = useState(false);
 
+  const navigate = useNavigate();
+  
   const[formData, setFormData] =useState({
     email : '',
     password : '',
@@ -22,9 +22,8 @@ export default function SignupIn() {
     }
 
     try{
-      
-      
-      await toast.promise(
+
+     const response = await toast.promise(
         loginApi(formData),{
           loading : <b>Checking Credentials</b>,
           success : (res) =>{
@@ -32,6 +31,13 @@ export default function SignupIn() {
           }
         }
       )
+
+      //store token in local storage
+      const token = response.data.token
+      localStorage.setItem("jwtToken", token)
+      navigate('/dashboard');
+      
+
     }catch(error){
       console.log(error)
       toast.error(error?.response?.data?.message || "something went wrong ")
@@ -50,8 +56,6 @@ export default function SignupIn() {
 
   return (
     <div className="flex min-h-screen overflow-hidden">
-
-      <Toaster position='top-right'/>
 
       {/* left side image */}
         <div className="hidden lg:flex lg:w-1/2 h-screen overflow-hidden relative">
@@ -123,17 +127,24 @@ export default function SignupIn() {
               </div>
 
               {/* Terms Checkbox */}
-              <div className="flex items-start gap-3 pt-2">
-                <input
+              <div className="flex justify-between gap-3 pt-2">
+                
+                <div className='flex gap-3'>
+                  <input
                   type="checkbox"
                   id="terms"
                   checked={agreedToTerms}
                   onChange={(e) => setAgreedToTerms(e.target.checked)}
                   className=" cursor-pointer mt-1 w-4 h-4 text-teal-600 border-gray-300 rounded focus:ring-teal-500"
-                />
-                <label htmlFor="terms" className="text-sm text-gray-600">
-                  Remember Me
-                </label>
+                  />
+                  <label htmlFor="terms" className="text-sm text-gray-600">
+                    Remember Me
+                  </label>
+                </div>
+
+                <Link to='/reset-password' className="text-sm text-[#ecb403] hover:underline">
+                  Forgot Password ?
+                </Link>
               </div>
 
               {/* Submit Button */}

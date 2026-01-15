@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import moviePoster from '../assets/moviePoster.png';
-import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { registerApi } from '../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 
@@ -80,7 +80,6 @@ export default function SignupIn() {
         {/* Right side - Form */}
 
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-white overflow-hidden">
-          <Toaster position='top-right'/>
           <div className="w-full max-w-md">
             <div className="text-center mb-8">
               <h1 className="text-4xl font-bold text-gray-900 mb-2" style={{ fontFamily: 'MuseoModerno'  }} >Sign up to CineChips</h1>

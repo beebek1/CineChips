@@ -1,8 +1,9 @@
-import React from 'react';
+import { useEffect, useState } from 'react';
 import logo from '../assets/cinechipsLogo.svg'
 import { FaSearch } from "react-icons/fa";
-import EasyButton from '../components/BtnCompo';
+// import EasyButton from '../components/BtnCompo';
 import { useNavigate } from "react-router-dom";
+import { jwtDecode } from 'jwt-decode';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -48,13 +49,15 @@ const Navbar = () => {
         </div>
 
         {/* login button */}
+        {/* {!isLoggedIn && */}
           <button
-            onClick={() => navigate("/signup")}
+            onClick={() => navigate("/signin")}
             className='bg-[#ffd602] h-10 w-20 mr-5'
             style={{fontFamily:'Saira'}}
           >
             LOGIN
           </button>
+        {/* } */}
      </div>
     </nav>
   )

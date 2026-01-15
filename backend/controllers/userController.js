@@ -1,7 +1,10 @@
 const User = require("../models/userModel.js");
+const sendEmail = require("../helpers/sendEmail.js");
+
 const bcrypt = require("bcrypt");
 const crypto = require("crypto");
-const sendEmail = require("../helpers/sendEmail.js");
+const jwt = require("jsonwebtoken");
+
 
 const getUserById = async (req, res) => {
   try {
@@ -140,6 +143,13 @@ const loginUser= async(req, res) =>{
     })
   }
 
+  if(user.isVerified === false || !user.isVerified){
+    return res.status(400).json({
+      success : false,
+      message : "user not verified"
+    });
+  }
+
   const isMatched = await bcrypt.compare(password, user.password)
 
   if(!isMatched){
@@ -149,9 +159,21 @@ const loginUser= async(req, res) =>{
     })
   }
 
+  const token = jwt.sign(
+    {
+      id : user.id,
+      role : user.role
+    },
+    process.env.JWT_SECRET,
+    {
+      expiresIn : process.env.JWT_EXPIRES_IN
+    }
+  )
+
   return res.status(200).json({
       success : true,
-      message : "user logged in"
+      message : "user logged in",
+      token : token
     })
 }
 
