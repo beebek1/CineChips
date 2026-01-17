@@ -1,66 +1,105 @@
 import { useEffect, useState } from 'react';
-import logo from '../assets/cinechipsLogo.svg'
-import { FaSearch } from "react-icons/fa";
-// import EasyButton from '../components/BtnCompo';
-import { useNavigate } from "react-router-dom";
-import { jwtDecode } from 'jwt-decode';
+import { FaSearch, FaUser } from "react-icons/fa";
 
 const Navbar = () => {
-  const navigate = useNavigate();
+  const [scrolled, setScrolled] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
-    <nav className='flex justify-between items-center'>
-      <div className='flex items-center '>
-        <img 
-          src={logo} 
-          alt="logo" 
-          className='w-40 h-15 ml-5 object-contain'
-        />
+    <nav 
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        scrolled 
+          ? 'bg-black/95 backdrop-blur-md shadow-lg shadow-black/50' 
+          : 'bg-gradient-to-b from-black/80 to-transparent'
+      }`}
+    >
+      <div className='max-w-7xl mx-auto px-8 py-4'>
+        <div className='flex justify-between items-center'>
+          
+          {/* Left Section - Logo & Navigation */}
+          <div className='flex items-center space-x-8'>
+            {/* Logo */}
+            <div className='flex items-center cursor-pointer group'>
+              <div className='relative'>
+                <h1 className='text-2xl font-black text-yellow-500 tracking-tight'>
+                  CINE<span className='text-white'>CHIPS</span>
+                </h1>
+                <div className='absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-500 group-hover:w-full transition-all duration-300'></div>
+              </div>
+            </div>
 
-        {/* buttons */}
-        <div className="flex ml-6 items-center space-x-5">
-
-          <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
-            <span style={{fontFamily:'Saira'}} className='text-sm'>HOME</span>
-          </button>
+            {/* Navigation Links */}
+            <div className="flex items-center space-x-1">
+              <button className="relative px-4 py-2 text-yellow-500 font-semibold text-sm tracking-wider hover:text-yellow-400 transition-colors group">
+                HOME
+                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-100 group-hover:scale-x-100 transition-transform'></span>
+              </button>
  
-          <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
-            <span style={{fontFamily:'Saira'}} className='text-sm'>SHOWING</span>
-          </button>
+              <button className="relative px-4 py-2 text-gray-300 font-semibold text-sm tracking-wider hover:text-yellow-500 transition-colors group">
+                SHOWING
+                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-0 group-hover:scale-x-100 transition-transform'></span>
+              </button>
 
-          <button className="flex items-center space-x-2 text-[#ffd602] p-2 hover:text-[#e6c500]">
-            <span style={{fontFamily:'Saira'}} className='text-sm'>DELAYS</span>
-          </button>
+              <button className="relative px-4 py-2 text-gray-300 font-semibold text-sm tracking-wider hover:text-yellow-500 transition-colors group">
+                UPCOMING
+                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-0 group-hover:scale-x-100 transition-transform'></span>
+              </button>
+
+              <button className="relative px-4 py-2 text-gray-300 font-semibold text-sm tracking-wider hover:text-yellow-500 transition-colors group">
+                BOOKINGS
+                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-0 group-hover:scale-x-100 transition-transform'></span>
+              </button>
+            </div>
+          </div>
+
+          {/* Right Section - Search & Auth */}
+          <div className='flex items-center space-x-4'>
+            
+            {/* Search Bar */}
+            <div className={`flex items-center bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-full px-4 py-2 transition-all duration-300 ${
+              scrolled ? 'w-48' : 'w-56'
+            } hover:border-yellow-500 focus-within:border-yellow-500 focus-within:w-64`}>
+              <FaSearch className="text-gray-400 w-4 h-4 flex-shrink-0" />
+              <input 
+                type="text"
+                placeholder="Search movies..."
+                className="bg-transparent text-gray-200 placeholder-gray-500 ml-3 w-full focus:outline-none text-sm"
+              />
+            </div>
+
+            {/* Login/Profile Button */}
+            {!isLoggedIn ? (
+              <button
+                onClick={() => console.log('Navigate to signin')}
+                className='group relative bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold px-6 py-2 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/50 hover:scale-105 active:scale-95'
+              >
+                <span className='text-sm tracking-wide'>LOGIN</span>
+              </button>
+            ) : (
+              <button className='flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-full border border-gray-700 hover:border-yellow-500 transition-all duration-300'>
+                <FaUser className='w-4 h-4 text-yellow-500' />
+                <span className='text-sm font-semibold'>Profile</span>
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* search bar */}
-      <div className='flex space-x-3 items-center'>
-        <div className="flex items-center w-60 h-10 bg-[#434343] px-3 py-2">
-          <FaSearch className="text-[#ffd602] w-4 h-4" />
-
-          <input 
-            type="text"
-            placeholder="Search.."
-            style={{fontFamily:'Saira'}}
-            className="text-[#92813b] ml-3 w-full placeholder-[#92813b] 
-                      focus:outline-none font-saira"
-          />
-        </div>
-
-        {/* login button */}
-        {/* {!isLoggedIn && */}
-          <button
-            onClick={() => navigate("/signin")}
-            className='bg-[#ffd602] h-10 w-20 mr-5'
-            style={{fontFamily:'Saira'}}
-          >
-            LOGIN
-          </button>
-        {/* } */}
-     </div>
+      {/* Bottom border that appears on scroll */}
+      <div className={`h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent transition-opacity duration-300 ${
+        scrolled ? 'opacity-100' : 'opacity-0'
+      }`}></div>
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;

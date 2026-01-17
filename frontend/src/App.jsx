@@ -7,6 +7,7 @@ import SeatData from './pages/SeatBooking';
 import Getuser from './pages/getUser';
 import { Toaster } from 'react-hot-toast';
 import Forgetpassword from '../src/pages/ForgetPassword';
+import Footer from './components/Footer';
 
 function AppWrapper() {
   const location = useLocation();
@@ -25,6 +26,7 @@ function AppWrapper() {
         <Route path="/dashboard" element={<Home />}/>
         <Route path="/reset-password" element={<Forgetpassword />}/>
       </Routes>
+      {!hideNavbar && <Footer/>}
     </>
   );
 }
