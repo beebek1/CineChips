@@ -1,167 +1,138 @@
-import { useState } from 'react';
-import { FaPlay, FaInfoCircle, FaStar, FaClock, FaCalendarAlt } from 'react-icons/fa';
+import { FaPlay, FaInfoCircle, FaStar, FaClock, FaCalendarAlt, FaArrowRight } from 'react-icons/fa';
 
-const Home = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentRole, setCurrentRole] = useState("user");
-
-  // Sample movie data
-  const featuredMovie = {
-    title: "Stranger Things",
-    description: "When a young boy vanishes, a small town uncovers a mystery involving secret experiments, terrifying supernatural forces and one strange little girl.",
-    rating: 8.7,
-    duration: "51min",
-    year: "2024",
-    genre: "Sci-Fi, Horror, Drama"
-  };
-
-  const nowShowing = [
-    { id: 1, title: "Movie Title 1", image: "https://picsum.photos/300/450?random=1", rating: 8.5 },
-    { id: 2, title: "Movie Title 2", image: "https://picsum.photos/300/450?random=2", rating: 7.8 },
-    { id: 3, title: "Movie Title 3", image: "https://picsum.photos/300/450?random=3", rating: 9.1 },
-    { id: 4, title: "Movie Title 4", image: "https://picsum.photos/300/450?random=4", rating: 8.2 },
-    { id: 5, title: "Movie Title 5", image: "https://picsum.photos/300/450?random=5", rating: 7.5 }
-  ];
-
-  const upcoming = [
-    { id: 1, title: "Upcoming 1", image: "https://picsum.photos/300/450?random=6", releaseDate: "Feb 15" },
-    { id: 2, title: "Upcoming 2", image: "https://picsum.photos/300/450?random=7", releaseDate: "Feb 22" },
-    { id: 3, title: "Upcoming 3", image: "https://picsum.photos/300/450?random=8", releaseDate: "Mar 1" },
-    { id: 4, title: "Upcoming 4", image: "https://picsum.photos/300/450?random=9", releaseDate: "Mar 8" },
-    { id: 5, title: "Upcoming 5", image: "https://picsum.photos/300/450?random=10", releaseDate: "Mar 15" }
-  ];
-
+const MovieHome = () => {
   return (
-    <>
-      {currentRole === "user" && (
-        <div className="min-h-screen bg-gradient-to-b from-black via-gray-900 to-black">
-          
-          {/* Hero Section */}
-          <div className="relative w-full h-[600px] overflow-hidden">
-            {/* Background Image */}
-            <div className="absolute inset-0">
-              <img 
-                src="https://images.unsplash.com/photo-1594908900066-3f47337549d8?w=1920&h=1080&fit=crop"
-                alt="Featured Movie" 
-                className='w-full h-full object-cover'
-              />
-              {/* Gradient Overlays */}
-              <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-transparent"></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent"></div>
+    <div className="min-h-screen bg-[#080808] font-sans text-white">
+      
+      {/* 00. THE HERO POSTER */}
+      <section className="relative w-full h-[85vh] overflow-hidden">
+        <div className="absolute inset-0">
+          <img 
+            src="https://images.unsplash.com/photo-1626814026160-2237a95fc5a0?w=1920&fit=crop"
+            alt="Hero" 
+            className='w-full h-full object-cover opacity-60'
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#080808] via-[#080808]/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent"></div>
+        </div>
+
+        <div className='relative h-full max-w-7xl mx-auto px-8 flex items-center pt-20'>
+          <div className='max-w-2xl space-y-8'>
+            <div className="inline-flex items-center space-x-3 bg-white/5 border border-white/10 px-4 py-1.5 rounded-lg">
+              <span className="w-1.5 h-1.5 bg-[#d4af37] rounded-full animate-pulse"></span>
+              <span className='text-gray-400 text-[10px] font-black tracking-[0.3em] uppercase'>Featured Premiere</span>
             </div>
 
-            {/* Content */}
-            <div className='relative h-full max-w-7xl mx-auto px-8 flex items-end pb-20'>
-              <div className='max-w-2xl space-y-6'>
-                {/* Badge
-                <div className="inline-flex items-center space-x-2 bg-red-600 px-4 py-2 rounded-full">
-                  <span className="w-2 h-2 bg-white rounded-full animate-pulse"></span>
-                  <span className='text-white text-xs font-bold tracking-wider'>NOW SHOWING</span>
-                </div> */}
+            <h1 className='text-white text-6xl md:text-8xl font-light tracking-tighter leading-none'>
+              DUNE: <span className='font-black'>PART II</span>
+            </h1>
 
-                {/* Title */}
-                <h1 className='text-white text-6xl font-bold leading-tight'>
-                  {featuredMovie.title}
-                </h1>
-
-                {/* Meta Info */}
-                <div className='flex items-center space-x-6 text-gray-300'>
-                  <div className='flex items-center space-x-2'>
-                    <FaStar className='text-yellow-500' />
-                    <span className='font-semibold'>{featuredMovie.rating}</span>
-                  </div>
-                  <div className='flex items-center space-x-2'>
-                    <FaClock className='text-gray-400' />
-                    <span>{featuredMovie.duration}</span>
-                  </div>
-                  <div className='flex items-center space-x-2'>
-                    <FaCalendarAlt className='text-gray-400' />
-                    <span>{featuredMovie.year}</span>
-                  </div>
-                </div>
-
-                {/* Genre Tags */}
-                <div className='flex flex-wrap gap-2'>
-                  {featuredMovie.genre.split(', ').map((genre, idx) => (
-                    <span key={idx} className='px-3 py-1 bg-gray-800/80 border border-gray-700 text-gray-300 text-sm rounded-full'>
-                      {genre}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Description */}
-                <p className='text-gray-300 text-lg leading-relaxed max-w-xl'>
-                  {featuredMovie.description}
-                </p>
-
-                {/* Action Buttons */}
-                <div className='flex space-x-4 pt-4'>
-                  <button className='flex items-center space-x-3 bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold px-8 py-4 rounded-full transition-all duration-300 shadow-lg hover:shadow-yellow-500/50 hover:scale-105 active:scale-95'>
-                    <FaPlay className='w-4 h-4' />
-                    <span className='text-lg'>BOOK NOW</span>
-                  </button>
-                  <button className='flex items-center space-x-3 bg-gray-800/80 backdrop-blur-sm hover:bg-gray-700 text-white font-bold px-8 py-4 rounded-full border border-gray-600 transition-all duration-300 hover:scale-105 active:scale-95'>
-                    <FaInfoCircle className='w-4 h-4' />
-                    <span className='text-lg'>MORE INFO</span>
-                  </button>
-                </div>
+            <div className='flex items-center space-x-8 text-[11px] font-black tracking-[0.2em] text-gray-500 uppercase'>
+              <div className='flex items-center space-x-2'>
+                <FaStar className='text-[#d4af37]' />
+                <span className='text-white'>8.9</span>
               </div>
+              <div className='flex items-center space-x-2'>
+                <FaClock className='text-[#d4af37]' />
+                <span>2h 46min</span>
+              </div>
+              <div className='flex items-center space-x-2'>
+                <FaCalendarAlt className='text-[#d4af37]' />
+                <span>2024</span>
+              </div>
+            </div>
+
+            <p className='text-gray-500 text-sm leading-relaxed max-w-lg font-medium'>
+              The mythic journey of Paul Atreides as he unites with Chani and the Fremen on a warpath of revenge against the conspirators who destroyed his family.
+            </p>
+
+            <div className='flex space-x-5 pt-4'>
+              <button className='cursor-pointer flex items-center space-x-3 bg-[#d4af37] text-black font-black px-10 py-4 rounded-xl text-[10px] tracking-[0.2em] uppercase transition-all hover:bg-[#b8962d]'>
+                <FaPlay className='w-3 h-3' />
+                <span>Book Now</span>
+              </button>
+              <button className='cursor-pointer flex items-center space-x-3 bg-white/5 text-white font-black px-10 py-4 rounded-xl border border-white/10 text-[10px] tracking-[0.2em] uppercase hover:bg-white/10'>
+                <FaInfoCircle className='w-3 h-3' />
+                <span>Details</span>
+              </button>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Now Showing Section */}
-          <div className='max-w-7xl mx-auto px-8 py-20'>
-            <div className='flex items-center space-x-6 mb-12'>
-              <h2 className='text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 tracking-tight'>
-                NOW
-              </h2>
-              <div className='text-white font-semibold text-lg tracking-widest leading-tight'>
-                <div>SHOWING</div>
-                <div>OUT THERE</div>
+      {/* 01. NOW SHOWING (With See More on last card) */}
+      <section className="max-w-7xl mx-auto px-8 py-24">
+        <div className="flex items-end space-x-4 mb-16">
+          <h2 className="text-8xl font-black text-white/[0.03] tracking-tighter leading-none select-none">01</h2>
+          <div className="pb-2">
+            <h3 className="text-[#d4af37] text-[10px] font-black tracking-[0.5em] uppercase mb-1">In Theaters</h3>
+            <h4 className="text-white text-3xl font-light tracking-tighter">NOW <span className="font-black">SHOWING</span></h4>
+          </div>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+          {[1, 2, 3, 4, 5].map((item) => (
+            <div key={item} className="relative group cursor-pointer aspect-[2/3] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 hover:border-[#d4af37]/40">
+              <img src={`https://picsum.photos/300/450?random=${item}`} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-all duration-700" alt="movie" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent"></div>
+              <div className="absolute bottom-0 p-5">
+                <h3 className="text-white font-bold text-xs tracking-widest uppercase">MOVIE TITLE {item}</h3>
               </div>
-            </div>
 
-            {/* Movie Cards Scroll */}
-            <div className='flex space-x-6 overflow-x-hidden scrollbar-hide pb-4'>
-              {nowShowing.map((movie, index) => (
-                <div key={movie.id} className='flex-shrink-0 group cursor-pointer'>
-                  <div className='relative w-64 h-96 rounded-2xl overflow-hidden shadow-2xl transition-all duration-500 hover:scale-105 hover:shadow-yellow-500/20'>
-
-                    {/* Movie Image */}
-                    <img 
-                      src={movie.image} 
-                      alt={movie.title}
-                      className='w-full h-full object-cover transition-transform duration-500 group-hover:scale-110'
-                    />
-                    {/* Gradient Overlay for better text visibility */}
-                    <div className='absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent'></div>
-
-                    {/* Info - Always visible at bottom */}
-                    <div className='absolute bottom-0 left-0 right-0 p-6'>
-                      <h3 className='text-white font-bold text-xl mb-2'>{movie.title}</h3>
-                      <div className='flex items-center space-x-2 text-yellow-400'>
-                        <FaStar />
-                        <span className='font-semibold'>{movie.rating}</span>
-                      </div>
+              {/* SEE MORE OVERLAY FOR NOW SHOWING (Card 5) */}
+              {item === 5 && (
+                <div className="absolute inset-0 bg-[#d4af37]/0 group-hover:bg-[#d4af37]/90 transition-all duration-500 flex flex-col items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 flex flex-col items-center">
+                    <span className="text-black font-black text-[11px] tracking-[0.4em] uppercase mb-4">View All</span>
+                    <div className="w-12 h-12 rounded-full border-2 border-black flex items-center justify-center">
+                      <FaArrowRight className="text-black text-xl" />
                     </div>
                   </div>
                 </div>
-              ))}
+              )}
             </div>
-          </div>
+          ))}
         </div>
-      )}
+      </section>
 
-      {currentRole === "admin" && (
-        <div className='min-h-screen bg-gray-900 flex items-center justify-center'>
-          <div className='text-center'>
-            <h1 className='text-4xl font-bold text-yellow-500 mb-4'>Admin Dashboard</h1>
-            <p className='text-gray-400'>Welcome to the admin panel</p>
+      {/* 02. UPCOMING RELEASES (With See More on last card) */}
+      <section className="max-w-7xl mx-auto px-8 py-24 border-t border-white/5">
+        <div className="flex items-end space-x-4 mb-16">
+          <h2 className="text-8xl font-black text-white/[0.03] tracking-tighter leading-none select-none">02</h2>
+          <div className="pb-2">
+            <h3 className="text-[#d4af37] text-[10px] font-black tracking-[0.5em] uppercase mb-1">Coming Soon</h3>
+            <h4 className="text-white text-3xl font-light tracking-tighter">UPCOMING <span className="font-black">RELEASES</span></h4>
           </div>
         </div>
-      )}
-    </>
+
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
+          {[1, 2, 3, 4, 5].map((item) => (
+            <div key={item} className="relative group cursor-pointer aspect-[2/3] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 hover:border-[#d4af37]/40">
+              <img src={`https://picsum.photos/300/450?random=${item + 10}`} className="w-full h-full object-cover opacity-40 group-hover:scale-110 transition-transform duration-1000" alt="upcoming" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#080808] to-transparent opacity-80"></div>
+              
+              <div className="absolute bottom-0 p-5">
+                <span className="text-[#d4af37] text-[9px] font-black tracking-[0.2em] uppercase">FEB {15 + item}</span>
+                <h3 className="text-white font-bold text-xs tracking-widest uppercase mt-1">UPCOMING {item}</h3>
+              </div>
+
+              {/* SEE MORE OVERLAY FOR UPCOMING (Card 5) */}
+              {item === 5 && (
+                <div className="absolute inset-0 bg-[#d4af37]/0 group-hover:bg-[#d4af37]/90 transition-all duration-500 flex flex-col items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 flex flex-col items-center">
+                    <span className="text-black font-black text-[11px] tracking-[0.4em] uppercase mb-4">See More</span>
+                    <div className="w-12 h-12 rounded-full border-2 border-black flex items-center justify-center">
+                      <FaArrowRight className="text-black text-xl" />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </section>
+
+    </div>
   );
 };
 
-export default Home;
+export default MovieHome;

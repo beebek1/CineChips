@@ -4,11 +4,14 @@ import SignUp from './pages/auth/signup'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
 import SignIn from './pages/auth/Signin';
 import SeatData from './pages/user/SeatBooking';
-import Getuser from './pages/getUser';
 import { Toaster } from 'react-hot-toast';
 import Forgetpassword from './pages/auth/ForgetPassword';
 import DateBooking from '../src/pages/user/DateBooking';
 import Footer from './components/Footer';
+import Upcoming from './pages/user/Upcoming';
+import Showing from './pages/user/Showing';
+import MyBookings from './pages/user/MyBookings';
+import Account from './pages/user/Account';
 
 function AppWrapper() {
   const location = useLocation();
@@ -24,9 +27,11 @@ function AppWrapper() {
         <Route path="/signin" element={<SignIn />}/>
         <Route path="/datebooking" element={<DateBooking />}/>
         <Route path="/seatbooking" element={<SeatData />}/>
-        <Route path="/getuser" element={<Getuser />}/>
-        <Route path="/dashboard" element={<Home />}/>
         <Route path="/reset-password" element={<Forgetpassword />}/>
+        <Route path="/upcoming" element={<Upcoming />}/>
+        <Route path="/showing" element={<Showing />}/>
+        <Route path="/bookings" element={<MyBookings />}/>
+        <Route path="/account" element={<Account />}/>
       </Routes>
       {!hideNavbar && location.pathname !=='/seatbooking' && <Footer/>}
     </>
