@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import moviePoster from '../assets/moviePoster.png';
+import moviePoster from '../../assets/moviePoster.png';
 import { Link, useNavigate } from 'react-router-dom';
-import { registerApi } from '../services/api';
+import { registerApi } from '../../services/api';
 import toast, { Toaster } from 'react-hot-toast';
 
 

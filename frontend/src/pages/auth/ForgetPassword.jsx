@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import { toast, Toaster } from 'react-hot-toast'
-import moviePoster from '../assets/moviePoster.png'
+import moviePoster from '../../assets/moviePoster.png'
 
 const ForgetPassword = () => {
     const navigate = useNavigate()

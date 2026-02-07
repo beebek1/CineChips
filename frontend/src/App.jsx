@@ -1,12 +1,13 @@
 import Navbar from './components/Navbar'
 import Home from './pages/Home'
-import SignUp from './pages/signup'
+import SignUp from './pages/auth/signup'
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom'
-import SignIn from './pages/Signin';
-import SeatData from './pages/SeatBooking';
+import SignIn from './pages/auth/Signin';
+import SeatData from './pages/user/SeatBooking';
 import Getuser from './pages/getUser';
 import { Toaster } from 'react-hot-toast';
-import Forgetpassword from '../src/pages/ForgetPassword';
+import Forgetpassword from './pages/auth/ForgetPassword';
+import DateBooking from '../src/pages/user/DateBooking';
 import Footer from './components/Footer';
 
 function AppWrapper() {
@@ -21,12 +22,13 @@ function AppWrapper() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />}/>
         <Route path="/signin" element={<SignIn />}/>
+        <Route path="/datebooking" element={<DateBooking />}/>
         <Route path="/seatbooking" element={<SeatData />}/>
         <Route path="/getuser" element={<Getuser />}/>
         <Route path="/dashboard" element={<Home />}/>
         <Route path="/reset-password" element={<Forgetpassword />}/>
       </Routes>
-      {!hideNavbar && <Footer/>}
+      {!hideNavbar && location.pathname !=='/seatbooking' && <Footer/>}
     </>
   );
 }

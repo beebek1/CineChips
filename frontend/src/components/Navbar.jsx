@@ -4,149 +4,109 @@ import { FaSearch, FaUser } from "react-icons/fa";
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [activeTab, setActiveTab] = useState('HOME');
+
+  const navLinks = ['HOME', 'SHOWING', 'UPCOMING', 'BOOKINGS'];
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   return (
     <nav 
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled 
-          ? 'bg-black/95 backdrop-blur-md shadow-lg shadow-black/50' 
-          : 'bg-gradient-to-b from-black/80 to-transparent'
+          ? 'bg-[#080808] border-b border-white/5 py-4' 
+          : 'bg-transparent py-7'
       }`}
     >
-      <div className='max-w-7xl mx-auto px-8 py-4'>
+      {/* Heavy Black Gradient Overlay for visibility */}
+      {!scrolled && (
+        <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-transparent h-40 pointer-events-none -z-10"></div>
+      )}
+
+      {/* Separation Gold Line when scrolled */}
+      {scrolled && (
+        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/40 to-transparent"></div>
+      )}
+
+      <div className='max-w-7xl mx-auto px-8'>
         <div className='flex justify-between items-center'>
           
-          {/* Left Section - Logo & Navigation */}
+          {/* Logo Section */}
+          <div className='flex items-center space-x-16'>
+            <div 
+              className='flex items-center cursor-pointer select-none group'
+              onClick={() => setActiveTab('HOME')}
+            >
+              <h1 className='text-2xl font-light tracking-tighter text-white'>
+                CINE<span className='font-black text-[#d4af37]'>CHIPS</span>
+              </h1>
+            </div>
+
+            {/* Nav Links - No Underline, Glow Effect */}
+            <div className="hidden lg:flex items-center space-x-2">
+              {navLinks.map((link) => (
+                <button
+                  key={link}
+                  onClick={() => setActiveTab(link)}
+                  className={`px-4 py-2 text-[10px] font-black tracking-[0.3em] transition-all duration-300 cursor-pointer outline-none ${
+                    activeTab === link 
+                      ? 'text-[#d4af37] drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]' 
+                      : 'text-gray-400 hover:text-white'
+                  }`}
+                >
+                  {link}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Right Actions */}
           <div className='flex items-center space-x-8'>
-            {/* Logo */}
-            <div className='flex items-center cursor-pointer group'>
-              <div className='relative'>
-                <h1 className='text-2xl font-black text-yellow-500 tracking-tight'>
-                  CINE<span className='text-white'>CHIPS</span>
-                </h1>
-                <div className='absolute -bottom-1 left-0 w-0 h-0.5 bg-yellow-500 group-hover:w-full transition-all duration-300'></div>
+            
+            {/* Search */}
+            <div className="hidden md:flex items-center group">
+              <div className="relative flex items-center">
+                <FaSearch className="absolute left-4 text-gray-500 group-focus-within:text-[#d4af37] transition-colors w-3 h-3" />
+                <input 
+                  type="text"
+                  placeholder="SEARCH"
+                  className="bg-black/60 border border-white/10 rounded-xl pl-10 pr-6 py-2.5 transition-all duration-500 focus:border-[#d4af37]/40 focus:bg-black w-44 focus:w-60 text-white placeholder-gray-600 text-[10px] font-black tracking-widest focus:outline-none cursor-text"
+                />
               </div>
             </div>
 
-            {/* Navigation Links */}
-            <div className="flex items-center space-x-1">
-              <button className="relative px-4 py-2 text-yellow-500 font-semibold text-sm tracking-wider hover:text-yellow-400 transition-colors group">
-                HOME
-                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-100 group-hover:scale-x-100 transition-transform'></span>
-              </button>
- 
-              <button className="relative px-4 py-2 text-gray-300 font-semibold text-sm tracking-wider hover:text-yellow-500 transition-colors group">
-                SHOWING
-                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-0 group-hover:scale-x-100 transition-transform'></span>
-              </button>
-
-              <button className="relative px-4 py-2 text-gray-300 font-semibold text-sm tracking-wider hover:text-yellow-500 transition-colors group">
-                UPCOMING
-                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-0 group-hover:scale-x-100 transition-transform'></span>
-              </button>
-
-              <button className="relative px-4 py-2 text-gray-300 font-semibold text-sm tracking-wider hover:text-yellow-500 transition-colors group">
-                BOOKINGS
-                <span className='absolute bottom-0 left-0 w-full h-0.5 bg-yellow-500 scale-x-0 group-hover:scale-x-100 transition-transform'></span>
-              </button>
+            {/* Auth Button */}
+            <div className="flex items-center">
+              {!isLoggedIn ? (
+                <button
+                  onClick={() => setIsLoggedIn(true)}
+                  className='bg-[#d4af37] hover:bg-[#c19d2d] text-black font-black px-8 py-3 rounded-xl transition-all duration-300 text-[10px] tracking-[0.2em] shadow-lg shadow-[#d4af37]/10 active:scale-95 cursor-pointer'
+                >
+                  LOGIN
+                </button>
+              ) : (
+                <button 
+                  onClick={() => setIsLoggedIn(false)}
+                  className='flex items-center space-x-3 bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl border border-white/10 transition-all duration-300 group cursor-pointer'
+                >
+                  <div className="w-6 h-6 rounded-lg bg-[#d4af37]/20 flex items-center justify-center pointer-events-none">
+                    <FaUser className='w-2.5 h-2.5 text-[#d4af37]' />
+                  </div>
+                  <span className='text-[10px] font-black tracking-[0.2em] uppercase'>Account</span>
+                </button>
+              )}
             </div>
-          </div>
-
-          {/* Right Section - Search & Auth */}
-          <div className='flex items-center space-x-4'>
-            
-            {/* Search Bar */}
-            <div className={`flex items-center bg-gray-800/80 backdrop-blur-sm border border-gray-700 rounded-full px-4 py-2 transition-all duration-300 ${
-              scrolled ? 'w-48' : 'w-56'
-            } hover:border-yellow-500 focus-within:border-yellow-500 focus-within:w-64`}>
-              <FaSearch className="text-gray-400 w-4 h-4 flex-shrink-0" />
-              <input 
-                type="text"
-                placeholder="Search movies..."
-                className="bg-transparent text-gray-200 placeholder-gray-500 ml-3 w-full focus:outline-none text-sm"
-              />
-            </div>
-
-            {/* Login/Profile Button */}
-            {!isLoggedIn ? (
-              <button
-                onClick={() => console.log('Navigate to signin')}
-                className='group relative bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-600 hover:to-yellow-700 text-black font-bold px-6 py-2 rounded-full transition-all duration-300 hover:shadow-lg hover:shadow-yellow-500/50 hover:scale-105 active:scale-95'
-              >
-                <span className='text-sm tracking-wide'>LOGIN</span>
-              </button>
-            ) : (
-              <button className='flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-full border border-gray-700 hover:border-yellow-500 transition-all duration-300'>
-                <FaUser className='w-4 h-4 text-yellow-500' />
-                <span className='text-sm font-semibold'>Profile</span>
-              </button>
-            )}
           </div>
         </div>
       </div>
-
-      {/* Bottom border that appears on scroll */}
-      <div className={`h-px bg-gradient-to-r from-transparent via-yellow-500/50 to-transparent transition-opacity duration-300 ${
-        scrolled ? 'opacity-100' : 'opacity-0'
-      }`}></div>
     </nav>
   );
 };
 
 export default Navbar;
-
-
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment
-//this is nosense comment

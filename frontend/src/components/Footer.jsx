@@ -3,129 +3,106 @@ import { FaFacebookF, FaTwitter, FaInstagram, FaYoutube } from 'react-icons/fa';
 
 const Footer = () => {
   return (
-    <footer className='bg-black border-t border-gray-800'>
-      <div className='max-w-7xl mx-auto px-8'>
+    <footer className="relative bg-[#050505] font-sans">
+      {/* 1. SEPARATION LAYER: This creates the distinction you're looking for */}
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-[#d4af37]/40 to-transparent shadow-[0_-10px_40px_rgba(212,175,55,0.1)]"></div>
+      
+      {/* 2. SUBTLE GLOW: A very faint radial light to lift the footer from the content */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-32 bg-[#d4af37]/[0.02] blur-[100px] pointer-events-none"></div>
+
+      <div className='relative z-10 max-w-7xl mx-auto px-8'>
         
         {/* Main Footer Content */}
-        <div className='py-16 grid grid-cols-1 md:grid-cols-4 gap-12'>
+        <div className='py-24 grid grid-cols-1 md:grid-cols-12 gap-16'>
           
           {/* Brand Section */}
-          <div className='md:col-span-1'>
-            <h2 className='text-3xl font-black text-yellow-500 mb-4 tracking-tight'>
-              CINE<span className='text-white'>CHIPS</span>
+          <div className='md:col-span-4'>
+            <h2 className='text-3xl font-light text-white mb-6 tracking-tighter'>
+              CINE<span className='font-black text-[#d4af37]'>CHIPS</span>
             </h2>
-            <p className='text-gray-400 text-sm leading-relaxed mb-6'>
+            <p className='text-gray-500 text-sm leading-relaxed mb-8 max-w-xs'>
               Your premium destination for the latest movies and unforgettable cinema experiences.
             </p>
             
-            {/* Social Links */}
-            <div className='flex space-x-4'>
-              <a href="#" className='w-10 h-10 bg-gray-800 hover:bg-yellow-500 rounded-full flex items-center justify-center transition-colors duration-300 group'>
-                <FaFacebookF className='text-gray-400 group-hover:text-black transition-colors' />
-              </a>
-              <a href="#" className='w-10 h-10 bg-gray-800 hover:bg-yellow-500 rounded-full flex items-center justify-center transition-colors duration-300 group'>
-                <FaTwitter className='text-gray-400 group-hover:text-black transition-colors' />
-              </a>
-              <a href="#" className='w-10 h-10 bg-gray-800 hover:bg-yellow-500 rounded-full flex items-center justify-center transition-colors duration-300 group'>
-                <FaInstagram className='text-gray-400 group-hover:text-black transition-colors' />
-              </a>
-              <a href="#" className='w-10 h-10 bg-gray-800 hover:bg-yellow-500 rounded-full flex items-center justify-center transition-colors duration-300 group'>
-                <FaYoutube className='text-gray-400 group-hover:text-black transition-colors' />
-              </a>
+            <div className='flex space-x-3'>
+              {[FaFacebookF, FaTwitter, FaInstagram, FaYoutube].map((Icon, index) => (
+                <a 
+                  key={index}
+                  href="#" 
+                  className='w-10 h-10 bg-white/[0.03] border border-white/5 hover:border-[#d4af37]/40 rounded-full flex items-center justify-center transition-all duration-500 group'
+                >
+                  <Icon className='text-gray-500 group-hover:text-[#d4af37] text-sm transition-colors' />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className='text-white font-bold text-lg mb-4 tracking-wide'>QUICK LINKS</h3>
-            <ul className='space-y-3'>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  Home
-                </a>
-              </li>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  Now Showing
-                </a>
-              </li>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  Upcoming Movies
-                </a>
-              </li>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  My Bookings
-                </a>
-              </li>
+          <div className='md:col-span-2'>
+            <h3 className='text-[10px] font-black text-[#d4af37] uppercase tracking-[0.4em] mb-8'>Navigation</h3>
+            <ul className='space-y-4'>
+              {['Home', 'Now Showing', 'Upcoming', 'My Bookings'].map((link) => (
+                <li key={link}>
+                  <a href="#" className='text-gray-500 hover:text-white transition-colors text-xs font-bold tracking-widest'>
+                    {link}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Support */}
-          <div>
-            <h3 className='text-white font-bold text-lg mb-4 tracking-wide'>SUPPORT</h3>
-            <ul className='space-y-3'>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  Help Center
-                </a>
-              </li>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  Contact Us
-                </a>
-              </li>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  Terms of Service
-                </a>
-              </li>
-              <li>
-                <a href="#" className='text-gray-400 hover:text-yellow-500 transition-colors text-sm'>
-                  Privacy Policy
-                </a>
-              </li>
+          <div className='md:col-span-2'>
+            <h3 className='text-[10px] font-black text-[#d4af37] uppercase tracking-[0.4em] mb-8'>Support</h3>
+            <ul className='space-y-4'>
+              {['Help Center', 'Contact Us', 'Terms', 'Privacy'].map((link) => (
+                <li key={link}>
+                  <a href="#" className='text-gray-500 hover:text-white transition-colors text-xs font-bold tracking-widest'>
+                    {link}
+                  </a>
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Newsletter */}
-          <div>
-            <h3 className='text-white font-bold text-lg mb-4 tracking-wide'>STAY UPDATED</h3>
-            <p className='text-gray-400 text-sm mb-4'>
-              Get the latest movie updates every week.
+          <div className='md:col-span-4'>
+            <h3 className='text-[10px] font-black text-[#d4af37] uppercase tracking-[0.4em] mb-8'>Newsletter</h3>
+            <p className='text-gray-500 text-xs mb-6 tracking-wide'>
+              Subscribe for exclusive premiere invites.
             </p>
-            <div className='flex'>
+            <div className='flex p-1 bg-white/[0.03] border border-white/10 rounded-2xl focus-within:border-[#d4af37]/30 transition-all'>
               <input 
                 type="email" 
-                placeholder="Enter your email"
-                className='bg-gray-800 text-gray-300 placeholder-gray-500 px-4 py-2 rounded-l-full flex-1 focus:outline-none focus:ring-2 focus:ring-yellow-500 text-sm'
+                placeholder="YOUR EMAIL"
+                className='bg-transparent text-white placeholder-gray-700 px-4 py-3 flex-1 focus:outline-none text-[10px] font-bold tracking-widest'
               />
-              <button className='bg-yellow-500 hover:bg-yellow-600 text-black font-bold px-6 py-2 rounded-r-full transition-colors'>
-                →
+              <button className='bg-[#d4af37] hover:bg-[#c19d2d] text-black px-5 py-3 rounded-xl transition-all font-black text-xs active:scale-95'>
+                JOIN
               </button>
             </div>
           </div>
         </div>
 
         {/* Bottom Bar */}
-        <div className='border-t border-gray-800 py-8'>
-          <div className='flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0'>
-            
-            {/* Copyright */}
-            <p className='text-gray-500 text-sm'>
-              © 2026 CineChips. All rights reserved.
+        <div className='border-t border-white/5 py-12'>
+          <div className='flex flex-col md:flex-row justify-between items-center gap-8'>
+            <p className='text-gray-600 text-[9px] font-black uppercase tracking-[0.3em]'>
+              © 2026 CINECHIPS.
             </p>
 
-            {/* Tagline */}
-            <p className='text-gray-400 text-sm'>
-              <span className='text-yellow-500 font-semibold'>New movies every Sunday</span> on CineChips
-            </p>
-
-            {/* Disclaimer */}
-            <p className='text-gray-600 text-xs max-w-md text-center md:text-right'>
-              This site does not store files. Content linked from 3rd party services.
-            </p>
+            <div className='flex items-center gap-6'>
+                <p className='text-gray-500 text-[9px] font-black uppercase tracking-[0.3em]'>
+                  PREMIERES <span className='text-white'>SUNDAY 9PM</span>
+                </p>
+                <div className='h-4 w-px bg-white/10'></div>
+                <div className='flex items-center gap-2'>
+                  <span className="w-1 h-1 rounded-full bg-[#d4af37]"></span>
+                  <p className='text-gray-600 text-[9px] font-black uppercase tracking-[0.3em]'>
+                    Secure Server
+                  </p>
+                </div>
+            </div>
           </div>
         </div>
       </div>

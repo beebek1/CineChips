@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import moviePoster from '../assets/moviePoster.png';
+import moviePoster from '../../assets/moviePoster.png';
 import { Link, useNavigate } from 'react-router-dom';
-import { loginApi } from '../services/api';
+import { loginApi } from '../../services/api';
 import toast from 'react-hot-toast';
 
 export default function SignupIn() {
