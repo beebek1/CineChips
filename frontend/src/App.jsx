@@ -12,6 +12,7 @@ import Upcoming from './pages/user/Upcoming';
 import Showing from './pages/user/Showing';
 import MyBookings from './pages/user/MyBookings';
 import Account from './pages/user/Account';
+import {NotFound, ScrollToTop} from './components/Elements';
 
 function AppWrapper() {
   const location = useLocation();
@@ -32,6 +33,7 @@ function AppWrapper() {
         <Route path="/showing" element={<Showing />}/>
         <Route path="/bookings" element={<MyBookings />}/>
         <Route path="/account" element={<Account />}/>
+        <Route path="/404" element={<NotFound />}/>
       </Routes>
       {!hideNavbar && location.pathname !=='/seatbooking' && <Footer/>}
     </>
@@ -42,6 +44,7 @@ function AppWrapper() {
 function App() {
   return (
     <Router>
+      <ScrollToTop/>
       <div className="bg-[#222222] min-h-screen">
         <AppWrapper />
       </div>

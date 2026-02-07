@@ -91,7 +91,7 @@ const Navbar = () => {
               ) : (
                 /* 5. Direct Account button to the bookings/profile path */
                 <Link 
-                  to="/bookings"
+                  to="/account"
                   className='flex items-center space-x-3 bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl border border-white/10 transition-all duration-300 group cursor-pointer'
                 >
                   <div className="w-6 h-6 rounded-lg bg-[#d4af37]/20 flex items-center justify-center pointer-events-none">
