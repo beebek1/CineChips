@@ -1,77 +1,105 @@
-import { useState, useMemo } from "react";
-import { useLocation } from "react-router-dom";
-import { MdLocationOn, MdLanguage, MdAccessTime } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
+import { MdArrowBack } from "react-icons/md";
 
 const MovieBookingDashboard = () => {
   const location = useLocation();
-  const movie = location.state?.movie; // Extracting the movie object passed via Link
-    console.log(movie)
+  const navigate = useNavigate();
+  const movie = location.state?.movie;
 
-  // 1. STATE MANAGEMENT
-  // We store the specific objects or strings to make it easier to drill down
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [selectedHall, setSelectedHall] = useState(null);
   const [selectedShowing, setSelectedShowing] = useState(null);
   const [selectedSlot, setSelectedSlot] = useState(null);
 
-  // Helper to format the Date for the UI (e.g., "2026-02-14" -> {day: "SAT", date: "14"})
+  // 1. INITIAL LOAD LOGIC: Fetch from Storage OR Default to First Date
+  useEffect(() => {
+    if (!movie) return;
+
+    const savedBooking = localStorage.getItem('activeBooking');
+    if (savedBooking) {
+      const parsed = JSON.parse(savedBooking);
+      
+      // Only restore if the saved booking is for THIS movie
+      if (parsed.movieId === movie.id) {
+        setSelectedSchedule(parsed.schedule);
+        setSelectedHall(parsed.hall);
+        setSelectedShowing(parsed.showing);
+        setSelectedSlot(parsed.slot);
+        return; // Exit early if we restored data
+      }
+    }
+
+    // Default: If no storage, auto-select first date
+    if (movie?.schedules?.length > 0) {
+      setSelectedSchedule(movie.schedules[0]);
+    }
+  }, [movie]);
+
   const formatDate = (dateString) => {
     const d = new Date(dateString);
     const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
-    return {
-      day: days[d.getDay()],
-      date: d.getDate(),
-      month: months[d.getMonth()]
+    return { day: days[d.getDay()], date: d.getDate(), month: months[d.getMonth()] };
+  };
+
+  // 2. PROCEED HANDLER
+  const onclickHandler = () => {
+    const bookingSummary = {
+      movieId: movie.id,
+      movieTitle: movie.title,
+      schedule: selectedSchedule,
+      hall: selectedHall,
+      showing: selectedShowing,
+      slot: selectedSlot,
+      genre : movie.genre
     };
+    
+    localStorage.setItem('activeBooking', JSON.stringify(bookingSummary));
+    navigate(`/seatbooking/${movie.id}`);
   };
 
-  // 2. RESET LOGIC (When parent selection changes, children must reset)
-  const handleDateSelect = (schedule) => {
-    setSelectedSchedule(schedule);
-    setSelectedHall(null);
-    setSelectedShowing(null);
-    setSelectedSlot(null);
-  };
-
-  const handleHallSelect = (hall) => {
-    setSelectedHall(hall);
-    setSelectedShowing(null);
-    setSelectedSlot(null);
-  };
-
-  const handleLanguageSelect = (showing) => {
-    setSelectedShowing(showing);
-    setSelectedSlot(null);
-  };
-
-  // Safety check if user refreshes page or navigates directly
-  if (!movie) {
-    return <div className="min-h-screen bg-[#080808] flex items-center justify-center text-white">No Movie Selected</div>;
-  }
+  if (!movie) return (
+    <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+        <button onClick={() => navigate('/')} className="text-[#d4af37] border border-[#d4af37] px-6 py-2 rounded cursor-pointer">
+            No Movie Selected. Return Home
+        </button>
+    </div>
+  );
 
   const isAllSelected = selectedSchedule && selectedHall && selectedShowing && selectedSlot;
 
   return (
-    <div className="min-h-screen bg-[#080808] text-gray-200 font-sans">
+    <div className="min-h-screen bg-[#080808] text-gray-200 font-sans pb-20">
+      
+      {/* Back Button */}
+      <button 
+        onClick={() => navigate(-1)}
+        className="fixed top-8 left-8 z-50 p-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-white cursor-pointer hover:bg-[#d4af37] hover:text-black transition-all active:scale-90"
+      >
+        <MdArrowBack size={24} />
+      </button>
+
       {/* Hero Section */}
-      <div className="relative h-[50vh] w-full overflow-hidden">
+      <div className="relative h-[55vh] w-full overflow-hidden">
         <div 
           className="absolute inset-0 bg-cover bg-center opacity-40"
           style={{ backgroundImage: `linear-gradient(to bottom, transparent, #080808), url('${movie.poster}')` }}
         />
         <div className="relative max-w-7xl mx-auto px-6 h-full flex items-end pb-12">
-          <div className="flex flex-col md:flex-row gap-10 items-end w-full">
-            <div className="hidden md:block w-40 shrink-0 rounded-xl overflow-hidden border border-white/5 shadow-2xl">
-              <img src={movie.poster} alt={movie.title} className="w-full h-full object-cover" />
+          <div className="flex flex-col md:flex-row gap-10 items-end w-full text-left">
+            <div className="hidden md:block w-48 shrink-0 rounded-xl overflow-hidden border border-white/5 shadow-2xl">
+              <img src={movie.poster} alt="Poster" className="w-full h-full object-cover" />
             </div>
-            <div className="flex-1 text-left">
+            <div className="flex-1">
               <div className="flex gap-3 mb-4 text-[10px] font-bold uppercase tracking-widest">
                 <span className="border border-[#d4af37]/40 text-[#d4af37] px-2 py-1 rounded">IMAX 2D</span>
                 <span className="bg-white/5 border border-white/10 px-2 py-1 rounded text-gray-400">{movie.genre}</span>
               </div>
-              <h1 className="text-5xl md:text-7xl font-black mb-2 tracking-tighter text-white uppercase">
-                {movie.title}
+              <h1 className="text-5xl md:text-7xl font-light mb-2 tracking-tight text-white uppercase leading-tight">
+                {movie.title.includes(':') ? (
+                    <>{movie.title.split(':')[0]}: <br/><span className="font-bold">{movie.title.split(':')[1]}</span></>
+                ) : movie.title}
               </h1>
               <p className="text-gray-500 max-w-2xl text-sm leading-relaxed italic">{movie.description}</p>
             </div>
@@ -83,18 +111,17 @@ const MovieBookingDashboard = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
           
           <div className="lg:col-span-8 space-y-12 text-left">
-            
-            {/* 1. DATE SELECTION */}
+            {/* 01. DATE SECTION */}
             <section>
-              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600 italic">01. Select Date</h2>
+              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600">01. Select Date</h2>
               <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide">
                 {movie.schedules.map((schedule, idx) => {
                   const f = formatDate(schedule.fullDate);
                   return (
                     <button
                       key={idx}
-                      onClick={() => handleDateSelect(schedule)}
-                      className={`flex-shrink-0 w-16 py-4 rounded-xl transition-all border ${
+                      onClick={() => { setSelectedSchedule(schedule); setSelectedHall(null); setSelectedShowing(null); setSelectedSlot(null); }}
+                      className={`cursor-pointer flex-shrink-0 w-16 py-4 rounded-xl transition-all border active:scale-95 ${
                         selectedSchedule?.fullDate === schedule.fullDate ? "bg-white text-black border-white" : "bg-white/5 border-white/5 text-gray-500 hover:border-white/20"
                       }`}
                     >
@@ -106,15 +133,15 @@ const MovieBookingDashboard = () => {
               </div>
             </section>
 
-            {/* 2. CINEMA HALL SELECTION */}
-            <section className={!selectedSchedule ? "opacity-20 pointer-events-none" : ""}>
-              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600 italic">02. Cinema Halls</h2>
+            {/* 02. CINEMA SECTION */}
+            <section className={!selectedSchedule ? "opacity-20" : ""}>
+              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600">02. Cinemas</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {selectedSchedule?.halls.map((hall, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleHallSelect(hall)}
-                    className={`p-6 rounded-2xl text-left transition-all border ${
+                    onClick={() => { setSelectedHall(hall); setSelectedShowing(null); setSelectedSlot(null); }}
+                    className={`cursor-pointer p-6 rounded-2xl text-left transition-all border active:scale-[0.98] ${
                       selectedHall?.name === hall.name ? "bg-[#111] border-[#d4af37]/60" : "bg-white/5 border-white/5 hover:border-white/10"
                     }`}
                   >
@@ -122,21 +149,21 @@ const MovieBookingDashboard = () => {
                       <h3 className={`font-bold ${selectedHall?.name === hall.name ? 'text-[#d4af37]' : 'text-white'}`}>{hall.name}</h3>
                       <span className="text-xs font-bold text-gray-500">Rs. {hall.price}</span>
                     </div>
-                    <p className="text-xs text-gray-600 uppercase tracking-widest">{hall.location}</p>
+                    <p className="text-xs text-gray-600">{hall.location}</p>
                   </button>
                 ))}
               </div>
             </section>
 
-            {/* 3. LANGUAGE SELECTION */}
-            <section className={!selectedHall ? "opacity-20 pointer-events-none" : ""}>
-              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600 italic">03. Language</h2>
+            {/* 03. LANGUAGE SECTION */}
+            <section className={!selectedHall ? "opacity-20" : ""}>
+              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600">03. Language</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {selectedHall?.showings.map((show, idx) => (
                   <button
                     key={idx}
-                    onClick={() => handleLanguageSelect(show)}
-                    className={`p-4 rounded-xl transition-all border flex items-center gap-4 ${
+                    onClick={() => { setSelectedShowing(show); setSelectedSlot(null); }}
+                    className={`cursor-pointer p-4 rounded-xl transition-all border flex items-center gap-4 active:scale-95 ${
                       selectedShowing?.language === show.language ? "bg-[#111] border-[#d4af37]/60" : "bg-white/5 border-white/5 hover:border-white/10"
                     }`}
                   >
@@ -146,22 +173,22 @@ const MovieBookingDashboard = () => {
                       {show.language.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <h3 className="text-sm font-bold text-white leading-none">{show.language}</h3>
+                      <h3 className="text-sm font-bold text-white leading-none mb-1">{show.language}</h3>
                     </div>
                   </button>
                 ))}
               </div>
             </section>
 
-            {/* 4. SHOWTIMES */}
-            <section className={!selectedShowing ? "opacity-20 pointer-events-none" : ""}>
-              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600 italic">04. Slots</h2>
+            {/* 04. SHOWTIMES */}
+            <section className={!selectedShowing ? "opacity-20" : ""}>
+              <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600">04. Showtimes</h2>
               <div className="flex flex-wrap gap-3">
                 {selectedShowing?.slots.map((slot, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedSlot(slot)}
-                    className={`px-8 py-3 rounded-full text-xs font-bold tracking-widest transition-all border ${
+                    className={`cursor-pointer px-8 py-3 rounded-full text-xs font-bold tracking-widest transition-all border active:scale-90 ${
                       selectedSlot === slot ? "bg-[#d4af37] border-[#d4af37] text-black" : "bg-transparent border-white/10 text-gray-500 hover:border-[#d4af37]/50"
                     }`}
                   >
@@ -172,20 +199,21 @@ const MovieBookingDashboard = () => {
             </section>
           </div>
 
-          {/* 5. DYNAMIC CHECKOUT CARD */}
+          {/* CHECKOUT CARD */}
           <div className="lg:col-span-4 text-left">
-            <div className="sticky top-24 bg-[#111] rounded-3xl p-8 border border-white/5">
-              <h3 className="text-xs font-black uppercase tracking-[0.4em] text-gray-600 mb-10 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#d4af37]"></span> Summary
-              </h3>
+            <div className="sticky top-24 bg-[#111] rounded-3xl p-8 border border-white/5 shadow-2xl">
+              <div className="flex items-center gap-2 mb-10">
+                <div className="w-1 h-1 rounded-full bg-[#d4af37]" />
+                <h3 className="text-xs font-black uppercase tracking-[0.4em] text-gray-500">Booking Summary</h3>
+              </div>
 
               <div className="space-y-8 mb-12">
                 <div>
-                   <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest mb-1">Cinema Hall</p>
+                   <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest mb-1">Cinema</p>
                    <p className="text-white font-medium">{selectedHall ? `${selectedHall.name}, ${selectedHall.location}` : "—"}</p>
                 </div>
                 <div>
-                   <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest mb-1">Language Option</p>
+                   <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest mb-1">Language</p>
                    <p className="text-white font-medium">{selectedShowing?.language || "—"}</p>
                 </div>
                 <div>
@@ -198,14 +226,15 @@ const MovieBookingDashboard = () => {
               </div>
 
               <div className="pt-8 border-t border-white/5 flex justify-between items-end mb-10">
-                <span className="text-[10px] text-gray-600 uppercase font-black tracking-widest">Ticket Price</span>
+                <span className="text-[10px] text-gray-600 uppercase font-black tracking-widest">Price</span>
                 <span className="text-3xl font-light text-white">Rs. {selectedHall?.price || "0"}</span>
               </div>
 
               <button
                 disabled={!isAllSelected}
-                className={`w-full py-4 rounded-xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 ${
-                  isAllSelected ? "bg-[#d4af37] text-black shadow-lg shadow-[#d4af37]/20" : "bg-white/5 text-gray-700 cursor-not-allowed"
+                onClick={onclickHandler}
+                className={`cursor-pointer w-full py-4 rounded-xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 active:scale-95 ${
+                  isAllSelected ? "bg-white text-black hover:bg-[#d4af37]" : "bg-white/5 text-gray-700 cursor-not-allowed border border-white/5"
                 }`}
               >
                 Proceed to Seats
