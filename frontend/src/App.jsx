@@ -27,6 +27,7 @@ function AppWrapper() {
         <Route path="/signup" element={<SignUp />}/>
         <Route path="/signin" element={<SignIn />}/>
         <Route path="/datebooking" element={<DateBooking />}/>
+        <Route path="/datebooking/:movie-name" element={<DateBooking />}/>
         <Route path="/seatbooking" element={<SeatData />}/>
         <Route path="/reset-password" element={<Forgetpassword />}/>
         <Route path="/upcoming" element={<Upcoming />}/>
