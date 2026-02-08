@@ -106,7 +106,7 @@ const MovieCard = ({ movie, isUpcoming = false }) => {
                 <FaPlay className="ml-1 text-[10px]" />
               </button>
               <Link className="cursor-pointer w-full max-w-[140px] bg-[#d4af37] text-black font-black py-3 rounded-xl text-[9px] tracking-[0.2em] uppercase flex items-center justify-center gap-2 hover:scale-105 transition-transform"
-                to={`/datebooking/${movie.title}`}
+                to={`/datebooking/${movie.id}`}
                 state={{movie}}
               >
                 <FaTicketAlt size={10} />
