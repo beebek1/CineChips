@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Backend for a movie ticket booking platform with seat maps, timing, and booking flow",
   "main": "index.js",
+  "type": "module",
   "scripts": {
     "start": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
