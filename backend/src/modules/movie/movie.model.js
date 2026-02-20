@@ -31,6 +31,16 @@ const Movie = sequelize.define(
       allowNull: true,
     },
 
+    trailerLink: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+
+    coverPic: {
+      type: DataTypes.STRING,
+      allowNull: true
+    },
+
     releaseDate: {
       type: DataTypes.DATE,
       allowNull: false,

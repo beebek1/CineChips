@@ -3,9 +3,11 @@ import { Movie } from "../associations.js";
 
 export const addMovie = async (req, res) => {
   try {
-    const { title, description, duration, genre, releaseDate } = req.body;
+    console.log(req.body)
+    const { title, description, duration, genre, releaseDate, trailerLink, coverPic } = req.body;
 
-    // Normalize the title for consistent searching
+    console.log(title, description, duration)
+
     const cleanTitle = title.replace(/\s+/g, " ").trim().toLowerCase();
 
     const movieExists = await Movie.findOne({ where: { title: cleanTitle } });
@@ -19,6 +21,8 @@ export const addMovie = async (req, res) => {
       duration,
       genre,
       releaseDate,
+      trailerLink,
+      coverPic
     });
 
     return res
@@ -30,6 +34,10 @@ export const addMovie = async (req, res) => {
       .json({ message: "Server error", error: error.message });
   }
 };
+
+export const updateCoverPic = async(req, res) =>{
+  
+}
 
 // 3. Delete Movie Logic
 export const deleteMovie = async (req, res) => {

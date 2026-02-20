@@ -78,6 +78,7 @@ export const addUser = async (req, res) => {
       message: "User added successfully",
       user: newUser,
     });
+    
   } catch (error) {
     res.status(500).json({
       message: "Server error",
