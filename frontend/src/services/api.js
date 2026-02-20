@@ -16,8 +16,19 @@ const Api = axios.create({
     },
 });
 
-export const registerApi = (data) => Api.post("/api/user/register", data);
+const config = {
+  headers: {
+    authorization: `Bearer ${localStorage.getItem("token")}`,
+  },
+};
 
-export const  loginApi = (data) =>Api.post("/api/user/login", data);
+export const registerApi = (data) => Api.post("/api/auth/register", data);
+
+export const  loginApi = (data) =>Api.post("/api/auth/login", data);
  
 export const getUser = (params) => Api.get("api/user/get-user", {params});
+
+
+
+//for movie
+export const addMovieApi = (data) => Api.post("/api/movie/addmovie", data, config);

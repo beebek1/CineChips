@@ -1,11 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { LoaderButton } from '../../components/Elements';
+
 import { 
   FaPlus, FaSearch, FaTrash, FaEdit, FaLink,
   FaTimes, FaFilm, FaImage, FaPlayCircle, FaSpinner 
 } from 'react-icons/fa';
 
+import { addMovieApi } from '../../services/api';
+import toast from 'react-hot-toast';
+
 const MovieAdminMaster = () => {
-  // --- STATE ---
+
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -19,8 +24,40 @@ const MovieAdminMaster = () => {
 
   const fileInputRef = useRef(null);
 
-  // --- MOCK API CALLS ---
-  // In reality, these would be: axios.get('/api/movies'), etc.
+  const validate = () =>{
+    const isFormFilled = Object.value(formData).every(v => v.trim() !== '' ) ;
+
+    if(isFormFilled ? true : false ){
+      alert("fill the fields")
+      return false
+    }
+    return true
+  }
+
+  const addMovie = async() =>{
+    if(!validate) return
+
+    try{
+        await toast.promise(
+          addMovieApi(formData),
+          {
+            loading: <b>Adding Movie...</b>,
+            success: (res) => {
+              setTimeout(() => {
+                navigate("/signin");
+              }, 1000);
+              return <b>{res.data.message}</b>;
+            },
+          },
+        );
+      }catch(error){
+        const errMessage = error.response?.data?.message || "Something went wrong";
+        toast.error(errMessage);
+    }
+
+
+  }
+
   const fetchMoviesApi = async () => {
     setLoading(true);
     try {
@@ -281,13 +318,12 @@ const MovieAdminMaster = () => {
                 <textarea className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-xs outline-none focus:border-[#d4af37]/40 h-24 resize-none" placeholder="Provide a brief summary of the movie..." value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
               </div>
 
-              <button 
-                type="submit" 
-                disabled={loading}
-                className="cursor-pointer w-full bg-[#d4af37] text-black font-black py-5 rounded-2xl text-[10px] uppercase tracking-[0.3em] hover:bg-[#b8962d] transition-all shadow-xl shadow-[#d4af37]/10 mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
-              >
-                {loading ? <FaSpinner className="animate-spin" /> : (editingId ? "Finalize Update" : "Commit to Archive")}
-              </button>
+              <LoaderButton 
+                onClick={addMovie}
+                isLoading={loading} 
+                editingId={editingId} 
+              />
+              
             </form>
           </div>
         </div>
