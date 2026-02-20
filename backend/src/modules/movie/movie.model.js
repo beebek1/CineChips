@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../db/database.js"; // Ensure the .js extension is present
+import { sequelize } from "../../db/database.js"; // Ensure the .js extension is present
 
 const Movie = sequelize.define(
   "Movie",

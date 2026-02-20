@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { addHall, addShowTime } from "./cinema.controller";
+import { addHall, addShowTime } from "./cinema.controller.js";
 
 const router = Router();
 

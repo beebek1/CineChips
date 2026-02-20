@@ -1,4 +1,4 @@
-import { Sequelize } from ("sequelize");
+import { Sequelize } from 'sequelize';
 import 'dotenv/config';
 
 const sequelize = new Sequelize(
@@ -16,9 +16,9 @@ const sequelize = new Sequelize(
 const connectDB = async () => {
   try {
     await sequelize.authenticate();
-    console.log("PostgreSQL connected successfully ✅");
+    console.log("PostgreSQL connected successfully");
   } catch (error) {
-    console.error("Unable to connect to the database ❌", error);
+    console.error("Unable to connect to the database", error);
   }
 };
 

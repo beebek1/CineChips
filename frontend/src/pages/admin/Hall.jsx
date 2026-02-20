@@ -207,19 +207,4 @@ const HallAdminMaster = () => {
   );
 };
 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-// managed 
-
 export default HallAdminMaster;

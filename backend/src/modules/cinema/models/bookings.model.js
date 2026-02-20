@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import { sequelize } from "../db/database.js"; // Added .js extension
+import { sequelize } from "../../../db/database.js"; // Added .js extension
 
 const Booking = sequelize.define(
   "Booking",
