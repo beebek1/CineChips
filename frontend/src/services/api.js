@@ -16,8 +16,16 @@ const Api = axios.create({
     },
 });
 
-export const registerApi = (data) => Api.post("/api/user/register", data);
+const config = {
+  headers: {
+    authorization: `Bearer ${localStorage.getItem("jwtToken")}`,
+  },
+};
 
-export const  loginApi = (data) =>Api.post("/api/user/login", data);
+export const registerApi = (data) => Api.post("/api/auth/register", data);
+
+export const  loginApi = (data) =>Api.post("/api/auth/login", data);
  
-export const getUser = (params) => Api.get("api/user/get-user", {params});
+export const getUser = (params) => Api.get("api/auth/get-user", {params});
+
+export const addMovieApi = (data) => ApiFormData.post("api/movie/addmovie", data, config)

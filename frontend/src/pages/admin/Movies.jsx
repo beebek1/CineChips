@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
+import toast from 'react-hot-toast';
 import { 
   FaPlus, FaSearch, FaTrash, FaEdit, FaLink,
   FaTimes, FaFilm, FaImage, FaPlayCircle, FaSpinner 
 } from 'react-icons/fa';
+import { addMovieApi } from '../../services/api';
 
 const MovieAdminMaster = () => {
   // --- STATE ---
@@ -19,8 +21,40 @@ const MovieAdminMaster = () => {
 
   const fileInputRef = useRef(null);
 
-  // --- MOCK API CALLS ---
-  // In reality, these would be: axios.get('/api/movies'), etc.
+  const handleSubmit = async() => {
+
+    const dataToSend = new FormData();
+
+    dataToSend.append('title', formData.title);
+    dataToSend.append('genre', formData.genre);
+    dataToSend.append('duration', formData.duration);
+    dataToSend.append('releaseDate', formData.releaseDate);
+    dataToSend.append('description', formData.description);
+    dataToSend.append('trailerLink', formData.trailerLink);
+
+    if (formData.coverPic) {
+        dataToSend.append('coverPic', formData.coverPic);
+    }
+
+    try { 
+      await toast.promise(
+        addMovieApi(dataToSend),
+        {
+          loading: <b>Adding Movie Detail...</b>,
+          success: (res) => {
+            setTimeout(() => {
+              navigate("/admin/movies");
+            }, 1000);
+            return <b>{res.data.message}</b>;
+          },
+        },
+      );
+    } catch (error) {
+      const errMessage = error.response?.data?.message || "Something went wrong";
+      toast.error(errMessage);
+    }
+  }
+
   const fetchMoviesApi = async () => {
     setLoading(true);
     try {
@@ -284,6 +318,7 @@ const MovieAdminMaster = () => {
               <button 
                 type="submit" 
                 disabled={loading}
+                onClick={handleSubmit}
                 className="cursor-pointer w-full bg-[#d4af37] text-black font-black py-5 rounded-2xl text-[10px] uppercase tracking-[0.3em] hover:bg-[#b8962d] transition-all shadow-xl shadow-[#d4af37]/10 mt-4 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-3"
               >
                 {loading ? <FaSpinner className="animate-spin" /> : (editingId ? "Finalize Update" : "Commit to Archive")}

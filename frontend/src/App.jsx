@@ -55,8 +55,7 @@ const AdminLayout = () => {
 };
 
 function AppWrapper() {
-  // In a real app, you'd get this from your Auth Context/State
-  const role = "user"; 
+  const role = "org"; 
 
   return (
     <>
@@ -68,7 +67,7 @@ function AppWrapper() {
         <Route path="/reset-password" element={<Forgetpassword />} />
 
         {/* --- ADMIN ROUTES (Prefixed with /admin) --- */}
-        {role === "admin" && (
+        {role === "org" && (
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminHome />} />
             <Route path="movies" element={<AdminMovie />} />

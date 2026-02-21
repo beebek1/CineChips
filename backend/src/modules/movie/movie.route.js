@@ -4,9 +4,11 @@ import {
   deleteMovie,
 } from "./movie.controller.js";
 
+import uploadImage from "../../middlewares/multer.js";
+
 const router = Router();
 
-router.post("/addmovie", addMovie);
+router.post("/addmovie", uploadImage, addMovie);
 router.delete("/:id", deleteMovie);
 
 export default router;
