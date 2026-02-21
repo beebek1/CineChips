@@ -6,7 +6,6 @@ import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
 import { ScrollToTop, NotFound } from './components/Elements';
-import getUserRole from './protected//authRole';
 
 // Auth & User Pages
 import SignUp from './pages/auth/signup';
@@ -27,7 +26,7 @@ import AdminHall from './pages/admin/Hall';
 import AdminSchedule from './pages/admin/Schedules';
 import AdminUser from './pages/admin/Users';
 
-// USER LAYOUT
+// --- 1. USER LAYOUT ---
 const UserLayout = () => {
   const location = useLocation();
   const showFooter = !location.pathname.includes('/seatbooking');
@@ -56,18 +55,20 @@ const AdminLayout = () => {
 };
 
 function AppWrapper() {
-  const role = getUserRole(); 
+  // In a real app, you'd get this from your Auth Context/State
+  const role = "user"; 
 
   return (
     <>
       <Toaster position='top-right' />
       <Routes>
+        {/* --- AUTH ROUTES (No Navbar/Footer) --- */}
         <Route path="/signup" element={<SignUp />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/reset-password" element={<Forgetpassword />} />
 
         {/* --- ADMIN ROUTES (Prefixed with /admin) --- */}
-        {role === "org" && (
+        {role === "admin" && (
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<AdminHome />} />
             <Route path="movies" element={<AdminMovie />} />
@@ -91,6 +92,7 @@ function AppWrapper() {
           </Route>
         )}
 
+        {/* --- FALLBACK --- */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FaHome, FaUndo, FaSearch, FaSpinner } from 'react-icons/fa';
+import { FaHome, FaUndo, FaSearch } from 'react-icons/fa';
 
 const NotFound = () => {
   const navigate = useNavigate();
@@ -95,40 +95,7 @@ const ScrollToTop = () => {
   return null;
 };
 
-const LoaderButton = ({ 
-  onClick, 
-  isLoading, 
-  text, 
-  editingId, 
-  type = "submit",
-  className = "" 
-}) => {
-  const buttonLabel = editingId ? "Finalize Update" : "Commit to Archive";
-
-  return (
-    <button
-      type={type}
-      onClick={onClick}
-      disabled={isLoading}
-      className={`
-        cursor-pointer w-full bg-[#d4af37] text-black font-black py-5 rounded-2xl 
-        text-[10px] uppercase tracking-[0.3em] hover:bg-[#b8962d] transition-all 
-        shadow-xl shadow-[#d4af37]/10 mt-4 
-        disabled:opacity-50 disabled:cursor-not-allowed 
-        flex items-center justify-center gap-3
-        ${className}
-      `}
-    >
-      {isLoading ? (
-        <FaSpinner className="animate-spin text-lg" />
-      ) : (
-        text || buttonLabel
-      )}
-    </button>
-  );
-};
-
-export {NotFound, ScrollToTop, LoaderButton};
+export {NotFound, ScrollToTop};
 
 
 
