@@ -3,10 +3,9 @@ import { Movie } from "../associations.js";
 
 export const addMovie = async (req, res) => {
   try {
-    console.log(req.body)
-    const { title, description, duration, genre, releaseDate, trailerLink, coverPic } = req.body;
-
-    console.log(title, description, duration)
+    const { title, description, duration, genre, releaseDate, trailerLink} = req.body;
+    const coverPicFile = req.files?.["coverPic"]?.[0] || null;
+    const coverPicName = coverPicFile.filename;
 
     const cleanTitle = title.replace(/\s+/g, " ").trim().toLowerCase();
 
@@ -22,7 +21,7 @@ export const addMovie = async (req, res) => {
       genre,
       releaseDate,
       trailerLink,
-      coverPic
+      coverPic : coverPicName
     });
 
     return res
@@ -35,7 +34,7 @@ export const addMovie = async (req, res) => {
   }
 };
 
-export const updateCoverPic = async(req, res) =>{
+export const getMoviesById = async(req, res) =>{
   
 }
 

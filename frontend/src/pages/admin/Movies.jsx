@@ -5,10 +5,12 @@ import {
   FaTimes, FaFilm, FaImage, FaPlayCircle, FaSpinner 
 } from 'react-icons/fa';
 import { addMovieApi } from '../../services/api';
+import { useNavigate } from 'react-router-dom';
 
 const MovieAdminMaster = () => {
-  // --- STATE ---
+  const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
+  const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState(null);
@@ -96,10 +98,14 @@ const MovieAdminMaster = () => {
 
   // --- HANDLERS ---
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
+  const file = e.target.files[0];
+  
     if (file) {
-      // For local preview. When sending to API, you'd append 'file' to FormData
-      setFormData({ ...formData, coverPic: URL.createObjectURL(file) });
+
+      setFormData({ ...formData, coverPic: file });
+
+      const previewUrl = URL.createObjectURL(file);
+      setPreview(previewUrl);
     }
   };
 
@@ -263,9 +269,9 @@ const MovieAdminMaster = () => {
                     onClick={() => !loading && fileInputRef.current.click()}
                     className="cursor-pointer aspect-[3/4] rounded-3xl border-2 border-dashed border-white/10 bg-white/5 flex flex-col items-center justify-center gap-3 hover:border-[#d4af37]/40 transition-all overflow-hidden relative group"
                    >
-                     {formData.coverPic ? (
+                     {preview ? (
                         <>
-                            <img src={formData.coverPic} className="w-full h-full object-cover" alt="Preview" />
+                            <img src={preview} className="w-full h-full object-cover" alt="Preview" />
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                                 <span className="text-[9px] font-black uppercase tracking-widest bg-white/10 backdrop-blur-md px-4 py-2 rounded-full">Change Image</span>
                             </div>
