@@ -29,3 +29,10 @@ export const  loginApi = (data) =>Api.post("/api/auth/login", data);
 export const getUser = (params) => Api.get("api/auth/get-user", {params});
 
 export const addMovieApi = (data) => ApiFormData.post("api/movie/addmovie", data, config)
+export const updateMovieApi = (editingId, dataToSend) => ApiFormData.put(`api/movie/update/${editingId}`, dataToSend, config)
+
+export const getAllMovie = () => Api.get("api/movie/getall")
+export const getMovieById = (data) => Api.get("api/movie/get-movie-by-id/${data}", data)
+
+export const deleteMovieApi = (data) => Api.delete(`api/movie/delete/${data}`)
+
