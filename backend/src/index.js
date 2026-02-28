@@ -33,8 +33,6 @@ const startServer = async () => {
   const PORT = process.env.PORT || 3000;
   try {
     await connectDB();
-
-    // SYNC LOGIC EXPLAINED BELOW
     await sequelize.sync({ alter: true });
 
     app.listen(PORT, () => {

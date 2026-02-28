@@ -3,6 +3,8 @@ import {
   FaUniversity, FaPlus, FaTrash, FaEdit, FaMapMarkerAlt,
   FaTimes, FaTh, FaSpinner, FaCouch, FaDollarSign 
 } from 'react-icons/fa';
+import { addHallApi, deleteHallApi, getAllHalls, updateHallApi } from '../../services/api';
+import toast from 'react-hot-toast';
 
 const HallAdminMaster = () => {
   // --- STATE ---
@@ -14,21 +16,17 @@ const HallAdminMaster = () => {
   const [formData, setFormData] = useState({
     name: '',
     location: '',
-    rowCount: 10, // Number of rows (converted to A-J)
+    rowCount: 10,
     colCount: 15,
     basePrice: 500,
-    vipRowPrice: 800 // Price for the last row
+    vipRowPrice: 800
   });
 
-  // --- MOCK API: Fetching Halls ---
   const fetchHallsApi = async () => {
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    const mockData = [
-      { id: 1, name: "AUDI 01", location: "Level 4, East Wing", rowCount: 10, colCount: 15, basePrice: 450, vipRowPrice: 700 },
-      { id: 2, name: "GOLD CLASS", location: "Level 2, VIP Lounge", rowCount: 5, colCount: 8, basePrice: 1200, vipRowPrice: 1800 },
-    ];
-    setHalls(mockData);
+    const res = await getAllHalls();
+    console.log(res?.data?.halls);
+    setHalls(res?.data?.halls);
     setLoading(false);
   };
 
@@ -41,7 +39,14 @@ const HallAdminMaster = () => {
   const handleOpenModal = (hall = null) => {
     if (hall) {
       setEditingId(hall.id);
-      setFormData(hall);
+      setFormData({
+        name: hall.name,
+        location: hall.location,
+        rowCount: hall.total_rows,
+        colCount: hall.total_columns,
+        basePrice: hall.basePrice,
+        vipRowPrice: hall.vipPrice
+      });
     } else {
       setEditingId(null);
       setFormData({ name: '', location: '', rowCount: 10, colCount: 15, basePrice: 500, vipRowPrice: 800 });
@@ -52,12 +57,31 @@ const HallAdminMaster = () => {
   const handleSaveHall = async (e) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise(resolve => setTimeout(resolve, 600));
 
     if (editingId) {
-      setHalls(halls.map(h => h.id === editingId ? { ...formData, id: editingId } : h));
+      try{
+        console.log(editingId)
+        console.log(formData, "this is data we are sending", )
+        const res = await updateHallApi(formData, editingId)
+        toast.success(res.data.message)
+        setIsModalOpen(false);
+      }catch(err){
+        toast.error(<b>{err.response?.data?.message || "Failed to update hall"}</b>);
+      }finally{
+        setLoading(false)
+      }
+
     } else {
-      setHalls([...halls, { ...formData, id: Date.now() }]);
+      try{
+        const res = await addHallApi(formData)
+        toast.success(res.data.message)
+        setIsModalOpen(false);
+      }catch(err){
+        toast.error(<b>{err.response?.data?.message || "Failed to add hall"}</b>);
+      }finally{
+        setLoading(false)
+      }
+
     }
     
     setLoading(false);
@@ -67,6 +91,17 @@ const HallAdminMaster = () => {
   const deleteHall = async (id) => {
     if (window.confirm("Delete this hall? All seating records and schedules will be lost.")) {
       setHalls(halls.filter(h => h.id !== id));
+      try{
+        console.log(editingId)
+        const res = await deleteHallApi(id)
+        toast.success(res.data.message)
+        setIsModalOpen(false);
+      }catch(err){
+        toast.error(<b>{err.response?.data?.message || "Failed to delete hall"}</b>);
+      }finally{
+        setLoading(false)
+      }
+
     }
   };
 
@@ -122,11 +157,11 @@ const HallAdminMaster = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                     <FaCouch className="text-gray-700" size={14}/>
-                    <span className="text-white font-black text-xs">{hall.rowCount * hall.colCount} Seats</span>
+                    <span className="text-white font-black text-xs">{hall.total_rows * hall.total_columns} Seats</span>
                 </div>
                 <div className="text-right">
                   <p className="text-[#d4af37] text-[10px] font-black tracking-tighter">BASE: Rs.{hall.basePrice}</p>
-                  <p className="text-white text-[10px] font-black tracking-tighter uppercase">VIP: Rs.{hall.vipRowPrice}</p>
+                  <p className="text-white text-[10px] font-black tracking-tighter uppercase">VIP: Rs.{hall.vipPrice}</p>
                 </div>
               </div>
             </div>
@@ -148,7 +183,7 @@ const HallAdminMaster = () => {
               </h2>
             </header>
 
-            <form onSubmit={handleSaveHall} className="space-y-6">
+            <form onSubmit={(e) => handleSaveHall(e)} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest ml-1">Hall Name</label>

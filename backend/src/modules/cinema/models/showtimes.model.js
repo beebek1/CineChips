@@ -15,8 +15,18 @@ const ShowTime = sequelize.define(
       allowNull: true,
     },
 
-    start_time: {
+    show_date: {
       type: DataTypes.DATE,
+      allowNull: false,
+    },
+
+    show_time: {
+      type: DataTypes.TIME,
+      allowNull: false,
+    },
+
+    language: {
+      type: DataTypes.STRING,
       allowNull: false,
     },
   },

@@ -15,13 +15,23 @@ const HallModel = sequelize.define(
       allowNull: false,
     },
 
-    total_seats: {
+    total_rows: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
 
-    layout_config: {
-      type: DataTypes.JSON,
+    total_columns: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    basePrice: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+    },
+
+    vipPrice: {
+      type: DataTypes.INTEGER,
       allowNull: false,
     },
 

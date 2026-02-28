@@ -24,7 +24,6 @@ import AdminHome from './pages/admin/Home';
 import AdminMovie from './pages/admin/Movies';
 import AdminHall from './pages/admin/Hall';
 import AdminSchedule from './pages/admin/Schedules';
-import AdminUser from './pages/admin/Users';
 
 // --- 1. USER LAYOUT ---
 const UserLayout = () => {
@@ -73,8 +72,6 @@ function AppWrapper() {
             <Route path="movies" element={<AdminMovie />} />
             <Route path="halls" element={<AdminHall />} />
             <Route path="schedules" element={<AdminSchedule />} />
-            <Route path="users" element={<AdminUser />} />
-            {/* Add more admin sub-routes here like halls, movies, etc. */}
           </Route>
         )}
 

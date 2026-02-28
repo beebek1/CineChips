@@ -1,13 +1,15 @@
 import { Movie } from "../associations.js";
 
-
 export const addMovie = async (req, res) => {
   try {
-    const { title, description, duration, genre, releaseDate, trailerLink} = req.body;
+    const { title, description, duration, genre, releaseDate, trailerLink, status} = req.body;
     const coverPicFile = req.files?.["coverPic"]?.[0] || null;
     
     if (!coverPicFile) {
       return res.status(400).json({ message: "Please upload a cover picture" });
+    }
+    if(!status){
+      return res.status(400).json({message: "status couldn't be null"});
     }
     const coverPicName = coverPicFile.filename;
 
@@ -25,6 +27,7 @@ export const addMovie = async (req, res) => {
       genre,
       releaseDate,
       trailerLink,
+      status,
       coverPic : coverPicName
     });
 
@@ -41,7 +44,7 @@ export const addMovie = async (req, res) => {
 export const updateMovie = async (req, res) => {
   try {
     const { id } = req.params;
-    const { title, description, duration, genre, releaseDate, trailerLink } =
+    const { title, description, duration, genre, releaseDate, trailerLink, status} =
       req.body;
 
       console.log(title, description, duration, genre, releaseDate, trailerLink, id)
@@ -69,6 +72,7 @@ export const updateMovie = async (req, res) => {
       releaseDate: releaseDate || movie.releaseDate,
       trailerLink: trailerLink || movie.trailerLink,
       coverPic: coverPicName,
+      status : status || movie.status,
     });
 
     return res.status(200).json({

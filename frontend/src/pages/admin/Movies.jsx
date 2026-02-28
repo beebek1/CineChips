@@ -8,7 +8,6 @@ import { addMovieApi, deleteMovieApi, getAllMovie, updateMovieApi } from '../../
 import { useNavigate } from 'react-router-dom';
 
 const MovieAdminMaster = () => {
-  const navigate = useNavigate();
   const [movies, setMovies] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +17,7 @@ const MovieAdminMaster = () => {
   
   const [formData, setFormData] = useState({
     title: '', genre: '', duration: '', releaseDate: '', 
-    description: '', trailerLink: '', coverPic: null
+    description: '', trailerLink: '', coverPic: null, status: "Showing"
   });
 
   const fileInputRef = useRef(null);
@@ -30,7 +29,17 @@ const MovieAdminMaster = () => {
       const res = await getAllMovie();
       setMovies(Array.isArray(res.data) ? res.data : []);
     } catch (err) {
-      toast.error("Failed to sync with database");
+      toast.success('try adding some movies', {
+        style: {
+          border: '1px solid #713200',
+          padding: '16px',
+          color: '#713200',
+        },
+        iconTheme: {
+          primary: '#713200',
+          secondary: '#FFFAEE',
+        },
+      });
     } finally {
       setLoading(false);
     }
@@ -96,6 +105,7 @@ const MovieAdminMaster = () => {
     dataToSend.append('title', formData.title);
     dataToSend.append('genre', formData.genre);
     dataToSend.append('duration', formData.duration);
+    dataToSend.append('status', formData.status);
     dataToSend.append('releaseDate', formData.releaseDate);
     dataToSend.append('description', formData.description);
     dataToSend.append('trailerLink', formData.trailerLink);
@@ -164,9 +174,10 @@ const MovieAdminMaster = () => {
         <table className="w-full text-left">
           <thead>
             <tr className="bg-white/[0.02] border-b border-white/5 text-[10px] font-black uppercase tracking-[0.3em] text-gray-500">
-              <th className="px-8 py-6">Premiere Details</th>
+              <th className="px-8 py-6">Movie Details</th>
               <th className="px-8 py-6">Genre</th>
               <th className="px-8 py-6">Duration</th>
+              <th className="px-8 py-6">Status</th>
               <th className="px-8 py-6 text-right">Actions</th>
             </tr>
           </thead>
@@ -182,6 +193,7 @@ const MovieAdminMaster = () => {
                 </td>
                 <td className="px-8 py-6 text-gray-400 text-[11px] font-bold uppercase">{movie.genre}</td>
                 <td className="px-8 py-6 text-gray-400 text-[11px] font-bold uppercase">{movie.duration}m</td>
+                <td className="px-8 py-6 text-gray-400 text-[11px] font-bold uppercase">{movie.status}</td>
                 <td className="px-8 py-6 text-right">
                   <div className="flex justify-end gap-3 opacity-0 group-hover:opacity-100 transition-all">
                     <button onClick={() => openEditModal(movie)} className="cursor-pointer p-2 bg-white/5 rounded-lg text-gray-400 hover:text-[#d4af37]"><FaEdit size={12}/></button>
@@ -222,6 +234,17 @@ const MovieAdminMaster = () => {
                     <input placeholder="Genre" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-xs" value={formData.genre} onChange={(e) => setFormData({...formData, genre: e.target.value})} />
                     <input placeholder="Mins" type="number" className="w-full bg-white/5 border border-white/10 rounded-2xl px-6 py-4 text-xs" value={formData.duration} onChange={(e) => setFormData({...formData, duration: e.target.value})} />
                   </div>
+                  <div className="space-y-2">
+                    <div className="flex gap-2 p-1 bg-white/5 border border-white/10 rounded-2xl">
+                      {['Showing', 'Upcoming'].map((opt) => (
+                        <label key={opt} className={`flex-1 cursor-pointer py-3 rounded-xl text-[10px] font-black uppercase text-center transition-all ${formData.status === opt ? 'bg-[#d4af37] text-black' : 'text-gray-500 hover:text-white'}`}>
+                          <input type="radio" className="hidden" value={formData.status} checked={formData.status === opt} 
+                            onChange={() => setFormData({...formData, status: opt})} />
+                          {opt}
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                   <div>
                     <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Trailer Link</label>
                     <div className="relative">
@@ -254,5 +277,4 @@ const MovieAdminMaster = () => {
     </div>
   );
 };
-
 export default MovieAdminMaster;

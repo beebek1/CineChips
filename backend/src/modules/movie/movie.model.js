@@ -33,12 +33,18 @@ const Movie = sequelize.define(
 
     trailerLink: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
     },
 
     coverPic: {
       type: DataTypes.STRING,
-      allowNull: true
+      allowNull: true,
+    },
+
+    status: {
+      type: DataTypes.ENUM("Showing", "Upcoming"),
+      defaultValue : "Showing",
+      allowNull: false,
     },
 
     releaseDate: {

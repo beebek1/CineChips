@@ -1,8 +1,8 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { 
-  FaChartPie, FaFilm, FaLayerGroup, FaCalendarCheck, 
-  FaUsers, FaSignOutAlt, FaChevronRight 
+  FaChartPie, FaFilm, FaLayerGroup, FaCalendarCheck
+  , FaSignOutAlt, FaChevronRight 
 } from 'react-icons/fa';
 
 const AdminSidebar = () => {
@@ -13,7 +13,6 @@ const AdminSidebar = () => {
     { name: 'MOVIES', path: '/admin/movies', icon: <FaFilm /> },
     { name: 'HALLS', path: '/admin/halls', icon: <FaLayerGroup /> },
     { name: 'SCHEDULES', path: '/admin/schedules', icon: <FaCalendarCheck /> },
-    { name: 'USERS', path: '/admin/users', icon: <FaUsers /> },
   ];
 
   return (
@@ -70,9 +69,6 @@ const AdminSidebar = () => {
             <p className="text-white text-[10px] font-black tracking-widest uppercase truncate">Admin User</p>
             <p className="text-gray-500 text-[8px] font-bold truncate">admin@cinechips.com</p>
           </div>
-          <button className="text-gray-500 hover:text-red-500 transition-colors cursor-pointer outline-none">
-            <FaSignOutAlt size={14} />
-          </button>
         </div>
       </div>
 
