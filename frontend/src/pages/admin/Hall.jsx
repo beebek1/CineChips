@@ -146,11 +146,11 @@ const HallAdminMaster = () => {
               <div className="grid grid-cols-2 gap-4 py-6 border-y border-white/5 mb-6">
                 <div>
                   <p className="text-gray-600 text-[8px] font-black uppercase tracking-widest mb-1">Rows (Alphabetical)</p>
-                  <p className="text-white font-bold text-sm tracking-widest">A - {numberToAlpha(hall.rowCount)}</p>
+                  <p className="text-white font-bold text-sm tracking-widest">A - {numberToAlpha(hall.total_rows)}</p>
                 </div>
                 <div>
                   <p className="text-gray-600 text-[8px] font-black uppercase tracking-widest mb-1">Columns (Numerical)</p>
-                  <p className="text-white font-bold text-sm tracking-widest">1 - {hall.colCount}</p>
+                  <p className="text-white font-bold text-sm tracking-widest">1 - {hall.total_columns}</p>
                 </div>
               </div>
 

@@ -29,25 +29,35 @@ const ScheduleAdminMaster = () => {
   const [formData, setFormData]       = useState(defaultForm);
 
   // ── FETCH ──────────────────────────────────────────────────────────────────
-  const fetchAll = async () => {
-    setLoading(true);
-    try {
-      const [showRes, hallRes, movieRes] = await Promise.all([
-        getShowTimes(),
-        getAllHalls(),
-        getAllMovie(),
-      ]);
+const fetchAll = async () => {
+  setLoading(true);
+  try {
+    const [showRes, hallRes, movieRes] = await Promise.all([
+      getShowTimes(),
+      getAllHalls(),
+      getAllMovie(),
+    ]);
 
-      const raw = showRes?.data?.showtimes ?? showRes?.data?.schedules ?? showRes?.data ?? [];
-      setSchedules(Array.isArray(raw) ? raw : []);
-      setHalls(hallRes?.data?.halls ?? []);
-      setMovies(movieRes?.data?.movies ?? movieRes?.data ?? []);
-    } catch (err) {
-      toast.error('Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
+    // 1. Get raw movie data
+    const rawMovies = movieRes?.data?.movies ?? movieRes?.data ?? [];
+    
+    // 2. Filter for "Showing" status only
+    const activeMovies = Array.isArray(rawMovies) 
+      ? rawMovies.filter(m => m.status === "Showing") 
+      : [];
+
+    const rawSchedules = showRes?.data?.showtimes ?? showRes?.data?.schedules ?? showRes?.data ?? [];
+    
+    setSchedules(Array.isArray(rawSchedules) ? rawSchedules : []);
+    setHalls(hallRes?.data?.halls ?? []);
+    setMovies(activeMovies); // Now only "Showing" movies are in state
+    
+  } catch (err) {
+    toast.error('Failed to load data');
+  } finally {
+    setLoading(false);
+  }
+};
 
   useEffect(() => { fetchAll(); }, []);
 
