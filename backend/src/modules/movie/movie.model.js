@@ -43,13 +43,19 @@ const Movie = sequelize.define(
 
     status: {
       type: DataTypes.ENUM("Showing", "Upcoming"),
-      defaultValue : "Showing",
+      defaultValue: "Showing",
       allowNull: false,
     },
 
     releaseDate: {
       type: DataTypes.DATE,
       allowNull: false,
+    },
+
+    featured: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      allowNull: true,
     },
   },
   {
