@@ -1,35 +1,39 @@
 import { DataTypes } from "sequelize";
 import { sequelize } from "../../../db/database.js";
 
-const SeatModel = sequelize.define(
-  "seat",
+const Seat = sequelize.define(
+  "Seat",
   {
-    id: {
+    seat_id: {
       type: DataTypes.INTEGER,
-      autoIncrement: true,
       primaryKey: true,
+      autoIncrement: true,
     },
 
-    seat_code: {
+    seat_name: {
       type: DataTypes.STRING,
       allowNull: false,
     },
 
-    row: {
+    row_label: {
       type: DataTypes.STRING,
       allowNull: false,
     },
 
-    type: {
-      type: DataTypes.STRING,
+    col_number: {
+      type: DataTypes.INTEGER,
       allowNull: false,
-      comment: "Golden/Platinum/Bronze",
+    },
+
+    seat_type: {
+      type: DataTypes.ENUM("standard", "vip"),
+      defaultValue: "standard",
     },
   },
   {
-    tableName: "seats",
+    tableName: "Seats",
     timestamps: true,
   },
 );
 
-export default SeatModel;
+export default Seat;
