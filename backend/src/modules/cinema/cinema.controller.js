@@ -1,22 +1,17 @@
 import { sequelize } from "../../db/database.js";
 import { HallModel, SeatModel, ShowTime, Movie } from "../associations.js";
+import {
+  generateSeatsForHall,
+  generateShowtimeSeats,
+} from "./seat.controller.js";
 
 export const addHall = async (req, res) => {
   let transaction;
-
   try {
     transaction = await sequelize.transaction();
 
-    const {
-      name,
-      location,
-      rowCount, // matches frontend
-      colCount, // matches frontend
-      basePrice,
-      vipRowPrice, // matches frontend
-    } = req.body;
-
-    console.log("Data received:", req.body);
+    const { name, location, rowCount, colCount, basePrice, vipRowPrice } =
+      req.body;
 
     const newHall = await HallModel.create(
       {
@@ -29,34 +24,32 @@ export const addHall = async (req, res) => {
       },
       { transaction },
     );
-
     await transaction.commit();
+
+    await generateSeatsForHall(
+      newHall.hall_id,
+      newHall.total_rows,
+      newHall.total_columns,
+    );
 
     return res.status(201).json({
       message: "Cinema Hall created successfully",
       hall: newHall,
     });
   } catch (error) {
-    if (transaction) await transaction.rollback();
-
+    if (transaction && !transaction.finished) await transaction.rollback();
     console.error("Add Hall Error:", error);
-    return res.status(500).json({
-      message: "Failed to create hall",
-      error: error.message,
-    });
+    return res
+      .status(500)
+      .json({ message: "Failed to create hall", error: error.message });
   }
 };
 
 export const updateHall = async (req, res) => {
   let transaction;
   try {
-    if (!req.body) {
-      console.log("not found");
-    }
-    console.log(req.params);
     transaction = await sequelize.transaction();
     const { id } = req.params;
-
     const { name, location, rowCount, colCount, basePrice, vipRowPrice } =
       req.body;
 
@@ -81,7 +74,7 @@ export const updateHall = async (req, res) => {
     await transaction.commit();
     return res.status(200).json({ message: "Hall updated successfully", hall });
   } catch (error) {
-    if (transaction) await transaction.rollback();
+    if (transaction && !transaction.finished) await transaction.rollback();
     return res
       .status(500)
       .json({ message: "Update failed", error: error.message });
@@ -89,11 +82,11 @@ export const updateHall = async (req, res) => {
 };
 
 export const deleteHall = async (req, res) => {
-  const transaction = await sequelize.transaction();
+  let transaction;
   try {
+    transaction = await sequelize.transaction();
     const { id } = req.params;
 
-    console.log(id);
     const hall = await HallModel.findByPk(id);
     if (!hall) {
       await transaction.rollback();
@@ -101,13 +94,13 @@ export const deleteHall = async (req, res) => {
     }
 
     await hall.destroy({ transaction });
-
     await transaction.commit();
+
     return res
       .status(200)
       .json({ message: "Hall permanently removed from archive" });
   } catch (error) {
-    if (transaction) await transaction.rollback();
+    if (transaction && !transaction.finished) await transaction.rollback();
     return res
       .status(500)
       .json({ message: "Delete failed", error: error.message });
@@ -116,38 +109,26 @@ export const deleteHall = async (req, res) => {
 
 export const getAllHalls = async (req, res) => {
   try {
-    const halls = await HallModel.findAll({
-      order: [["createdAt", "DESC"]],
-    });
-
-    return res.status(200).json({
-      success: true,
-      halls,
-    });
+    const halls = await HallModel.findAll({ order: [["createdAt", "DESC"]] });
+    return res.status(200).json({ success: true, halls });
   } catch (error) {
-    console.error("Get All Halls Error:", error);
-    return res.status(500).json({
-      message: "Failed to fetch halls",
-      error: error.message,
-    });
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch halls", error: error.message });
   }
 };
 
-// 3. Add Showtime
 export const addShowTime = async (req, res) => {
   try {
     const { movie_id, hall_id, show_date, show_time, language, price } =
       req.body;
 
-    console.log(req.body);
-    const movie = await Movie.findOne({
-      where: { id: movie_id },
-    });
-
+    const movie = await Movie.findByPk(movie_id);
     if (!movie) {
       return res.status(404).json({ message: "Movie not found" });
     }
 
+    // Create showtime first
     const newShowTime = await ShowTime.create({
       movie_id,
       hall_id,
@@ -156,6 +137,9 @@ export const addShowTime = async (req, res) => {
       price,
       language,
     });
+
+    // Then generate showtime seats — newShowTime is committed so FK is safe
+    await generateShowtimeSeats(newShowTime.showtime_id, newShowTime.hall_id);
 
     return res
       .status(201)
@@ -168,32 +152,52 @@ export const addShowTime = async (req, res) => {
 export const getShowTimes = async (req, res) => {
   try {
     const showtimes = await ShowTime.findAll({
-      // include allows you to get the full Movie and Hall objects
-      include: [
-        {
-          model: Movie,
-        },
-        {
-          model: HallModel,
-        },
-      ],
-      // We sort by date first, then by time
+      include: [{ model: Movie }, { model: HallModel }],
       order: [
         ["show_date", "ASC"],
         ["show_time", "ASC"],
       ],
     });
 
-    // If no showtimes, return empty array with 200 (standard REST practice)
-    if (!showtimes || showtimes.length === 0) {
-      return res.status(200).json([]);
+    return res.status(200).json(showtimes.length ? showtimes : []);
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ message: "Error fetching showtimes", error: error.message });
+  }
+};
+
+export const deleteShowTime = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deleted = await ShowTime.destroy({
+      where: { showtime_id: id },
+    });
+
+    if (deleted) {
+      return res.status(200).json({ message: "Showtime deleted successfully" });
     }
 
-    return res.status(200).json(showtimes);
+    return res.status(404).json({ message: "Showtime not found" });
   } catch (error) {
     return res.status(500).json({
-      message: "Error fetching showtimes",
+      message: "Error deleting showtime",
       error: error.message,
     });
+  }
+};
+
+
+export const internalDeleteShowtime = async (showtimeId) => {
+  try {
+    const result = await ShowTime.destroy({
+      where: { showtime_id: showtimeId },
+    });
+    return result;
+  } catch (error) {
+    throw new Error(
+      `Failed to delete showtime ${showtimeId}: ${error.message}`,
+    );
   }
 };
