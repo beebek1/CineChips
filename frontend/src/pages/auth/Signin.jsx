@@ -34,7 +34,7 @@ export default function Signin() {
       
       // Smooth transition to dashboard
       setTimeout(() => {
-        navigate('/dashboard');
+        navigate('/');
       }, 800);
 
     } catch (error) {
