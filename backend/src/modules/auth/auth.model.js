@@ -4,7 +4,7 @@ import { sequelize } from "../../db/database.js";
 const User = sequelize.define(
   "User",
   {
-    id: {
+    user_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
@@ -36,7 +36,7 @@ const User = sequelize.define(
 
     isVerified: {
       type: DataTypes.BOOLEAN,
-      defaultValue: false,
+      defaultValue: true,
       allowNull: true,
     },
 
