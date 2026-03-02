@@ -4,7 +4,7 @@ import HallModel from "./cinema/models/halls.model.js";
 import SeatModel from "./cinema/models/seats.model.js";
 import ShowTime from "./cinema/models/showtimes.model.js";
 import ShowtimeSeat from "./cinema/models/showtimeSeats.model.js";
-import Booking from "./cinema/models/bookings.model.js";
+import Booking from "./booking/booking.model.js";
 import { sequelize } from "../db/database.js";
 
 // Movie <-> ShowTime
@@ -34,10 +34,6 @@ ShowtimeSeat.belongsTo(User, { foreignKey: "booked_by" });
 // ShowTime <-> Booking
 ShowTime.hasMany(Booking, { foreignKey: "showtime_id", onDelete: "CASCADE" });
 Booking.belongsTo(ShowTime, { foreignKey: "showtime_id" });
-
-// Seat <-> Booking
-SeatModel.hasMany(Booking, { foreignKey: "seat_id", onDelete: "CASCADE" });
-Booking.belongsTo(SeatModel, { foreignKey: "seat_id" });
 
 // User <-> Booking
 User.hasMany(Booking, { foreignKey: "user_id", onDelete: "CASCADE" });
