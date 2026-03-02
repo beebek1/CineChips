@@ -124,7 +124,7 @@ export const getMoviesById = async (req, res) => {
 export const deleteMovie = async (req, res) => {
   try {
     const { id } = req.params;
-    const deleted = await Movie.destroy({ where: { id } });
+    const deleted = await Movie.destroy({ where: { movie_id: id } });
 
     if (!deleted) {
       return res.status(404).json({ message: "Movie not found" });
