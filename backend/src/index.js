@@ -5,6 +5,7 @@ import { sequelize, connectDB } from "./db/database.js";
 import rootRouter from "./modules/main.router.js";
 import { fileURLToPath } from "url";
 import path from "path";
+import './utils/crons.js'; 
 
 const app = express();
 
