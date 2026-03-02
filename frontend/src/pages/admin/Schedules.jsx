@@ -3,7 +3,7 @@ import {
   FaTrash, FaEdit, FaTimes, FaSpinner, FaTag, FaExclamationTriangle,
   FaFilm, FaUniversity, FaCalendarAlt, FaClock, FaGlobe
 } from 'react-icons/fa';
-import { addShowTimeApi, getShowTimes, getAllHalls, getAllMovie } from '../../services/api';
+import { addShowTimeApi, deleteSchedule, getShowTimes, getAllHalls, getAllMovie } from '../../services/api';
 import toast from 'react-hot-toast';
 
 const LANGUAGES = ['English', 'Nepali', 'Hindi'];
@@ -15,6 +15,29 @@ const defaultForm = {
   showTime: '',
   language: 'English',
   price: ''
+};
+
+// ── FORMAT HELPERS ─────────────────────────────────────────────────────────────
+const formatDate = (raw) => {
+  if (!raw) return '—';
+  return new Date(raw).toLocaleDateString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  }).toUpperCase();
+};
+
+const formatTime = (raw) => {
+  if (!raw) return '—';
+  const [h, m] = raw.slice(0, 5).split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
+};
+
+// "HH:MM" or "HH:MM:SS" → total minutes from midnight
+const toMinutes = (timeStr) => {
+  if (!timeStr) return 0;
+  const [h, m] = timeStr.slice(0, 5).split(':').map(Number);
+  return h * 60 + m;
 };
 
 const ScheduleAdminMaster = () => {
@@ -29,48 +52,37 @@ const ScheduleAdminMaster = () => {
   const [formData, setFormData]       = useState(defaultForm);
 
   // ── FETCH ──────────────────────────────────────────────────────────────────
-const fetchAll = async () => {
-  setLoading(true);
-  try {
-    const [showRes, hallRes, movieRes] = await Promise.all([
-      getShowTimes(),
-      getAllHalls(),
-      getAllMovie(),
-    ]);
-
-    // 1. Get raw movie data
-    const rawMovies = movieRes?.data?.movies ?? movieRes?.data ?? [];
-    
-    // 2. Filter for "Showing" status only
-    const activeMovies = Array.isArray(rawMovies) 
-      ? rawMovies.filter(m => m.status === "Showing") 
-      : [];
-
-    const rawSchedules = showRes?.data?.showtimes ?? showRes?.data?.schedules ?? showRes?.data ?? [];
-    
-    setSchedules(Array.isArray(rawSchedules) ? rawSchedules : []);
-    setHalls(hallRes?.data?.halls ?? []);
-    setMovies(activeMovies); // Now only "Showing" movies are in state
-    
-  } catch (err) {
-    toast.error('Failed to load data');
-  } finally {
-    setLoading(false);
-  }
-};
+  const fetchAll = async () => {
+    setLoading(true);
+    try {
+      const [showRes, hallRes, movieRes] = await Promise.all([
+        getShowTimes(),
+        getAllHalls(),
+        getAllMovie(),
+      ]);
+      const raw = showRes?.data?.showtimes ?? showRes?.data?.schedules ?? showRes?.data ?? [];
+      setSchedules(Array.isArray(raw) ? raw : []);
+      setHalls(hallRes?.data?.halls ?? []);
+      setMovies(movieRes?.data?.movies ?? movieRes?.data ?? []);
+    } catch {
+      toast.error('Failed to load data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => { fetchAll(); }, []);
 
   // ── HELPERS ────────────────────────────────────────────────────────────────
   const toForm = (s) => ({
-    movieId:  String(s.movie_id  ?? s.movieId  ?? ''),
-    hallId:   String(s.hall_id   ?? s.hallId   ?? ''),
-    showDate: (s.show_date ?? s.showDate ?? '').split('T')[0],    showTime: s.show_time ?? s.showTime ?? '',
-    language: s.language  ?? 'English',
-    price:    s.price     ?? '',
+    movieId:  String(s.movie_id ?? s.movieId ?? ''),
+    hallId:   String(s.hall_id  ?? s.hallId  ?? ''),
+    showDate: (s.show_date ?? s.showDate ?? '').split('T')[0],
+    showTime: (s.show_time ?? s.showTime ?? '').slice(0, 5),
+    language: s.language ?? 'English',
+    price:    s.price    ?? '',
   });
 
-  // Build the payload the backend expects
   const toPayload = (f) => ({
     movie_id:  f.movieId,
     hall_id:   f.hallId,
@@ -81,24 +93,42 @@ const fetchAll = async () => {
   });
 
   const getMovieTitle = (id) =>
-    movies.find(m => String(m.id) === String(id))?.title ?? '—';
+    movies.find(m => String(m.movie_id) === String(id))?.title ?? '—';
 
   const getHallName = (id) =>
-    halls.find(h => String(h.id) === String(id))?.name ?? '—';
+    halls.find(h => String(h.hall_id) === String(id))?.name ?? '—';
 
-  const isHallOccupied = (hallId, date, time, excludeId) =>
-    schedules.some(s =>
-      String(s.hall_id ?? s.hallId) === String(hallId) &&
-      (s.show_date ?? s.showDate)   === date &&
-      (s.show_time ?? s.showTime)   === time &&
-      s.id !== excludeId
-    );
+  // ── COLLISION CHECK ────────────────────────────────────────────────────────
+  const getConflict = (hallId, date, time, movieId, excludeId) => {
+    const newStart    = toMinutes(time);
+    const newDuration = Number(movies.find(m => String(m.movie_id) === String(movieId))?.duration ?? 0);
+    const newEnd      = newStart + newDuration;
+
+    return schedules.find(s => {
+      if (s.showtime_id === excludeId) return false;
+      if (String(s.hall_id ?? s.hallId) !== String(hallId)) return false;
+
+      const sDate = (s.show_date ?? s.showDate ?? '').split('T')[0];
+      if (sDate !== date) return false;
+
+      const existingStart    = toMinutes(s.show_time ?? s.showTime ?? '00:00');
+      const existingDuration = Number(s.Movie?.duration ?? s.movie?.duration ?? 0);
+      const existingEnd      = existingStart + existingDuration + 15;
+
+      return newStart < existingEnd && newEnd > existingStart;
+    }) ?? null;
+  };
+
+  const isPastDateTime = (date, time) => {
+    if (!date || !time) return false;
+    return new Date(`${date}T${time}`) < new Date();
+  };
 
   // ── MODAL ──────────────────────────────────────────────────────────────────
   const handleOpenModal = (schedule = null) => {
     setError('');
     if (schedule) {
-      setEditingId(schedule.id);
+      setEditingId(schedule.showtime_id);
       setFormData(toForm(schedule));
     } else {
       setEditingId(null);
@@ -112,8 +142,24 @@ const fetchAll = async () => {
     e.preventDefault();
     setError('');
 
-    if (isHallOccupied(formData.hallId, formData.showDate, formData.showTime, editingId)) {
-      setError(`COLLISION: This hall is already booked at ${formData.showTime} on this date.`);
+    if (isPastDateTime(formData.showDate, formData.showTime)) {
+      setError('Cannot schedule a showtime in the past.');
+      return;
+    }
+
+    const conflict = getConflict(
+      formData.hallId,
+      formData.showDate,
+      formData.showTime,
+      formData.movieId,
+      editingId
+    );
+
+    if (conflict) {
+      const blocker = conflict.Movie?.title ?? conflict.movie?.title ?? 'another movie';
+      const bTime   = formatTime(conflict.show_time ?? conflict.showTime);
+      const bDur    = Number(conflict.Movie?.duration ?? conflict.movie?.duration ?? 0);
+      setError(`COLLISION: "${blocker}" plays at ${bTime} (${bDur} min + 15 min buffer).`);
       return;
     }
 
@@ -121,8 +167,8 @@ const fetchAll = async () => {
     try {
       if (editingId) {
         setSchedules(prev =>
-          prev.map(s => s.id === editingId
-            ? { ...s, ...toPayload(formData), id: editingId }
+          prev.map(s => s.showtime_id === editingId
+            ? { ...s, ...toPayload(formData), showtime_id: editingId }
             : s
           )
         );
@@ -142,16 +188,20 @@ const fetchAll = async () => {
   };
 
   // ── DELETE ─────────────────────────────────────────────────────────────────
-  const deleteSchedule = async (id) => {
+  const deleteScheduleHandler = async (showtime_id) => {
     if (!window.confirm('Delete this showtime? This cannot be undone.')) return;
-    setSchedules(prev => prev.filter(s => s.id !== id));
-    // Wire deleteShowTimeApi(id) when available
-    toast.success('Showtime removed');
+    try {
+      await deleteSchedule(showtime_id);
+      setSchedules(prev => prev.filter(s => s.showtime_id !== showtime_id));
+      toast.success('Showtime removed');
+    } catch (err) {
+      toast.error(<b>{err?.response?.data?.message ?? 'Failed to delete showtime'}</b>);
+    }
   };
 
   // ── AUTO PRICE ON HALL SELECT ──────────────────────────────────────────────
   const updateHallAndPrice = (hId) => {
-    const selected = halls.find(h => String(h.id) === String(hId));
+    const selected = halls.find(h => String(h.hall_id) === String(hId));
     setFormData(prev => ({
       ...prev,
       hallId: hId,
@@ -205,19 +255,19 @@ const fetchAll = async () => {
                 </tr>
               )}
               {schedules.map(s => (
-                <tr key={s.id} className="hover:bg-white/[0.02] transition-colors">
+                <tr key={s.showtime_id} className="hover:bg-white/[0.02] transition-colors">
                   <td className="px-8 py-5">
-                    <p className="font-bold text-sm uppercase">
-                      {s.movie?.title ?? getMovieTitle(s.movie_id ?? s.movieId)}
+                    <p className="font-bold text-sm uppercase capitalize">
+                      {s.Movie?.title ?? s.movie?.title ?? getMovieTitle(s.movie_id ?? s.movieId)}
                     </p>
                     <span className="text-[10px] text-[#d4af37] font-black">{s.language}</span>
                   </td>
                   <td className="px-8 py-5 font-bold text-gray-400 text-sm">
-                    {s.hall?.name ?? getHallName(s.hall_id ?? s.hallId)}
+                    {s.hallModel?.name ?? s.hall?.name ?? getHallName(s.hall_id ?? s.hallId)}
                   </td>
                   <td className="px-8 py-5">
-                    <p className="text-sm font-bold">{s.show_time ?? s.showTime}</p>
-                    <p className="text-[10px] text-gray-500 uppercase">{s.show_date ?? s.showDate}</p>
+                    <p className="text-sm font-bold">{formatTime(s.show_time ?? s.showTime)}</p>
+                    <p className="text-[10px] text-gray-500 uppercase">{formatDate(s.show_date ?? s.showDate)}</p>
                   </td>
                   <td className="px-8 py-5 text-[#d4af37] font-black text-sm">Rs. {s.price}</td>
                   <td className="px-8 py-5 text-right">
@@ -229,7 +279,7 @@ const fetchAll = async () => {
                         <FaEdit size={12} />
                       </button>
                       <button
-                        onClick={() => deleteSchedule(s.id)}
+                        onClick={() => deleteScheduleHandler(s.showtime_id)}
                         className="cursor-pointer p-3 bg-red-500/5 rounded-xl text-red-500/50 hover:text-red-500 transition-colors"
                       >
                         <FaTrash size={12} />
@@ -250,14 +300,9 @@ const fetchAll = async () => {
             className="absolute inset-0 bg-black/95 backdrop-blur-md"
             onClick={() => !submitting && setIsModalOpen(false)}
           />
-
           <div className="relative w-full max-w-2xl my-auto animate-in zoom-in duration-300">
             <div className="bg-[#0a0a0a] border border-white/10 rounded-[40px] overflow-hidden shadow-2xl shadow-black/80">
-
-              {/* Gold accent line */}
               <div className="h-px w-full bg-gradient-to-r from-transparent via-[#d4af37] to-transparent" />
-
-              {/* Modal header */}
               <div className="px-10 pt-8 pb-6 border-b border-white/5 flex items-center justify-between">
                 <div>
                   <p className="text-[9px] font-black text-[#d4af37] uppercase tracking-[0.4em] mb-1">
@@ -275,9 +320,7 @@ const fetchAll = async () => {
                 </button>
               </div>
 
-              {/* Modal body */}
               <div className="px-10 py-8">
-
                 {error && (
                   <div className="mb-6 p-4 bg-red-500/10 border border-red-500/20 rounded-2xl flex items-center gap-3 text-red-400 text-[10px] font-black uppercase tracking-wider">
                     <FaExclamationTriangle className="shrink-0" />
@@ -286,8 +329,6 @@ const fetchAll = async () => {
                 )}
 
                 <form onSubmit={handleSaveSchedule} className="space-y-5">
-
-                  {/* Movie + Language */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase tracking-widest">
@@ -300,12 +341,13 @@ const fetchAll = async () => {
                         onChange={e => setFormData({ ...formData, movieId: e.target.value })}
                       >
                         <option value="" className="bg-[#111]">Select movie</option>
-                        {movies.map(m => (
-                          <option key={m.id} value={m.id} className="bg-[#111]">{m.title}</option>
-                        ))}
+                        {movies
+                          .filter(m => m.status?.toLowerCase() !== 'upcoming')
+                          .map(m => (
+                            <option key={m.movie_id} value={m.movie_id} className="bg-[#111]">{m.title}</option>
+                          ))}
                       </select>
                     </div>
-
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase tracking-widest">
                         <FaGlobe size={8} className="text-[#d4af37]" /> Language
@@ -322,7 +364,6 @@ const fetchAll = async () => {
                     </div>
                   </div>
 
-                  {/* Hall + Price */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase tracking-widest">
@@ -336,11 +377,10 @@ const fetchAll = async () => {
                       >
                         <option value="" className="bg-[#111]">Select hall</option>
                         {halls.map(h => (
-                          <option key={h.id} value={h.id} className="bg-[#111]">{h.name}</option>
+                          <option key={h.hall_id} value={h.hall_id} className="bg-[#111]">{h.name}</option>
                         ))}
                       </select>
                     </div>
-
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase tracking-widest">
                         <FaTag size={8} className="text-[#d4af37]" /> Ticket Price (Rs.)
@@ -356,7 +396,6 @@ const fetchAll = async () => {
                     </div>
                   </div>
 
-                  {/* Date + Time block */}
                   <div className="bg-white/[0.03] border border-white/5 rounded-[28px] p-6 grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-[9px] font-black text-[#d4af37] uppercase tracking-widest">
@@ -365,12 +404,12 @@ const fetchAll = async () => {
                       <input
                         required
                         type="date"
+                        min={new Date().toISOString().split('T')[0]}
                         className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-bold [color-scheme:dark] outline-none focus:border-[#d4af37]/50 transition-colors"
                         value={formData.showDate}
                         onChange={e => setFormData({ ...formData, showDate: e.target.value })}
                       />
                     </div>
-
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-[9px] font-black text-[#d4af37] uppercase tracking-widest">
                         <FaClock size={8} /> Show Time
@@ -385,7 +424,6 @@ const fetchAll = async () => {
                     </div>
                   </div>
 
-                  {/* Submit */}
                   <button
                     type="submit"
                     disabled={submitting}
@@ -396,7 +434,6 @@ const fetchAll = async () => {
                       : editingId ? 'Finalize Changes' : 'Deploy Schedule'
                     }
                   </button>
-
                 </form>
               </div>
             </div>
