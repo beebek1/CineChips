@@ -3,6 +3,7 @@ import Movie from "./movie/movie.model.js";
 import HallModel from "./cinema/models/halls.model.js";
 import SeatModel from "./cinema/models/seats.model.js";
 import ShowTime from "./cinema/models/showtimes.model.js";
+import ShowtimeSeat from "./cinema/models/showtimeSeats.model.js";
 import Booking from "./cinema/models/bookings.model.js";
 import { sequelize } from "../db/database.js";
 
@@ -18,6 +19,18 @@ ShowTime.belongsTo(HallModel, { foreignKey: "hall_id" });
 HallModel.hasMany(SeatModel, { foreignKey: "hall_id", onDelete: "CASCADE" });
 SeatModel.belongsTo(HallModel, { foreignKey: "hall_id" });
 
+// ShowTime <-> ShowtimeSeat
+ShowTime.hasMany(ShowtimeSeat, { foreignKey: "showtime_id", onDelete: "CASCADE" });
+ShowtimeSeat.belongsTo(ShowTime, { foreignKey: "showtime_id" });
+
+// Seat <-> ShowtimeSeat
+SeatModel.hasMany(ShowtimeSeat, { foreignKey: "seat_id", onDelete: "CASCADE" });
+ShowtimeSeat.belongsTo(SeatModel, { foreignKey: "seat_id" });
+
+// User <-> ShowtimeSeat (who booked it)
+User.hasMany(ShowtimeSeat, { foreignKey: "booked_by", onDelete: "SET NULL" });
+ShowtimeSeat.belongsTo(User, { foreignKey: "booked_by" });
+
 // ShowTime <-> Booking
 ShowTime.hasMany(Booking, { foreignKey: "showtime_id", onDelete: "CASCADE" });
 Booking.belongsTo(ShowTime, { foreignKey: "showtime_id" });
@@ -30,13 +43,13 @@ Booking.belongsTo(SeatModel, { foreignKey: "seat_id" });
 User.hasMany(Booking, { foreignKey: "user_id", onDelete: "CASCADE" });
 Booking.belongsTo(User, { foreignKey: "user_id" });
 
-// 3. Centralized Export
 export {
   User,
   Movie,
   HallModel,
   SeatModel,
   ShowTime,
+  ShowtimeSeat,
   Booking,
-  sequelize, 
+  sequelize,
 };
