@@ -5,18 +5,25 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import jwt from "jsonwebtoken";
 
-// 2. Logic
+
 export const getUserById = async (req, res) => {
   try {
-    const id = req.params.id;
+    const { id } = req.params;
     const user = await User.findByPk(id);
-    return res.json({
-      user: { id: user.id, name: user.username },
-      message: " User found successfully",
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    return res.status(200).json({
+      success: true,
+      user: user, // Sends username, email, role, isVerified, etc.
+      message: "User found successfully",
     });
   } catch (error) {
     return res.status(500).json({
-      message: " Error fetching user ",
+      message: "Error fetching user",
       error: error.message,
     });
   }
