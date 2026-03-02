@@ -22,7 +22,7 @@ const formatDate = (iso) =>
 // --- MOVIE CARD ---
 const MovieCard = ({ movie, isUpcoming = false }) => {
   if (movie.isViewAll) {
-    const to = isUpcoming ? '/upcoming' : '/now-showing';
+    const to = isUpcoming ? '/upcoming' : '/showing';
     return (
       <Link to={to} className="relative group cursor-pointer aspect-[2/3] rounded-[32px] overflow-hidden border border-[#d4af37]/30 bg-[#111] transition-all duration-500 hover:bg-[#d4af37] flex flex-col items-center justify-center">
         <span className="text-[#d4af37] group-hover:text-black font-black text-[11px] tracking-[0.4em] uppercase mb-4 transition-colors">View All</span>
@@ -39,7 +39,7 @@ const MovieCard = ({ movie, isUpcoming = false }) => {
         src={getCoverUrl(movie.coverPic)}
         className="w-full h-full object-cover opacity-60 group-hover:opacity-40 group-hover:scale-110 group-hover:blur-[4px] transition-all duration-700"
         alt={movie.title}
-        onError={e => { e.target.src = `https://picsum.photos/500/750?random=${movie.id}`; }}
+        onError={e => { e.target.src = `https://picsum.photos/500/750?random=${movie.movie_id}`; }}
       />
       <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent opacity-90 group-hover:opacity-20 transition-opacity" />
 
@@ -63,7 +63,7 @@ const MovieCard = ({ movie, isUpcoming = false }) => {
                 </a>
               )}
               <Link
-                to={`/datebooking/${movie.id}`}
+                to={`/datebooking/${movie.movie_id}`}
                 state={{ movie }}
                 className="cursor-pointer w-full max-w-[140px] bg-[#d4af37] text-black font-black py-3 rounded-xl text-[9px] tracking-[0.2em] uppercase flex items-center justify-center gap-2 hover:scale-105 transition-transform"
               >
@@ -111,17 +111,15 @@ const MovieHome = () => {
         const movies    = movieRes?.data?.movies ?? movieRes?.data ?? [];
         const showtimes = showRes?.data?.showtimes ?? showRes?.data?.schedules ?? showRes?.data ?? [];
 
-        // Hero: find the movie with featured true from showtime nested data
-        // Deduplicate by movie_id, pick the first one with featured true
         const featuredShowtime = showtimes.find(s => s.Movie?.featured === true);
         const featuredMovie    = featuredShowtime?.Movie ?? movies.find(m => m.featured === true) ?? null;
         setHero(featuredMovie);
 
-        const showing  = movies.filter(m => m.status === 'Showing');
+        const showing        = movies.filter(m => m.status === 'Showing');
         const upcomingMovies = movies.filter(m => m.status === 'Upcoming');
 
-        setNowShowing([...showing.slice(0, 4),       { id: 'view-all-showing',  isViewAll: true }]);
-        setUpcoming([...upcomingMovies.slice(0, 4),  { id: 'view-all-upcoming', isViewAll: true }]);
+        setNowShowing([...showing.slice(0, 4),      { movie_id: 'view-all-showing',  isViewAll: true }]);
+        setUpcoming([...upcomingMovies.slice(0, 4), { movie_id: 'view-all-upcoming', isViewAll: true }]);
       } catch {
         setNowShowing([]);
         setUpcoming([]);
@@ -189,7 +187,7 @@ const MovieHome = () => {
 
               <div className="flex space-x-5 pt-4">
                 <Link
-                  to={`/datebooking/${hero.id}`}
+                  to={`/datebooking/${hero.movie_id}`}
                   state={{ movie: hero }}
                   className="cursor-pointer flex items-center space-x-3 bg-[#d4af37] text-black font-black px-10 py-4 rounded-xl text-[10px] tracking-[0.2em] uppercase transition-all hover:bg-[#b8962d]"
                 >
@@ -225,7 +223,7 @@ const MovieHome = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
             {nowShowing.map(movie => (
-              <MovieCard key={movie.id} movie={movie} />
+              <MovieCard key={movie.movie_id} movie={movie} />
             ))}
           </div>
         )}
@@ -245,7 +243,7 @@ const MovieHome = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-10">
             {upcoming.map(movie => (
-              <MovieCard key={movie.id} movie={movie} isUpcoming />
+              <MovieCard key={movie.movie_id} movie={movie} isUpcoming />
             ))}
           </div>
         )}

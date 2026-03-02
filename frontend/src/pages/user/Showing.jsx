@@ -6,8 +6,8 @@ import { getAllMovie } from '../../services/api';
 const IMAGE_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/$/, '');
 
 const NowShowingPage = () => {
-  const [allMovies, setAllMovies]     = useState([]);
-  const [loading, setLoading]         = useState(true);
+  const [allMovies, setAllMovies]       = useState([]);
+  const [loading, setLoading]           = useState(true);
   const [activeFilter, setActiveFilter] = useState('ALL');
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
@@ -17,7 +17,6 @@ const NowShowingPage = () => {
       try {
         const res = await getAllMovie();
         const raw = res?.data?.movies ?? res?.data ?? [];
-        // Only keep movies with status "Showing"
         const showing = raw.filter(m => m.status === 'Showing');
         setAllMovies(showing);
       } catch {
@@ -29,7 +28,6 @@ const NowShowingPage = () => {
     fetchMovies();
   }, []);
 
-  // Build genre list from fetched data
   const genres = useMemo(() => {
     const unique = [...new Set(allMovies.map(m => m.genre?.toUpperCase()).filter(Boolean))];
     return ['ALL', ...unique];
@@ -114,7 +112,7 @@ const NowShowingPage = () => {
         ) : filteredMovies.length > 0 ? (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-8 gap-y-12">
             {filteredMovies.map((movie) => (
-              <div key={movie.id} className="group cursor-pointer">
+              <div key={movie.movie_id} className="group cursor-pointer">
 
                 {/* Poster */}
                 <div className="relative aspect-[2/3] rounded-2xl overflow-hidden border border-white/5 transition-all duration-700 hover:border-[#d4af37]/40 mb-5">
@@ -122,7 +120,7 @@ const NowShowingPage = () => {
                     src={getCoverUrl(movie.coverPic)}
                     alt={movie.title}
                     className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700"
-                    onError={e => { e.target.src = `https://picsum.photos/300/450?random=${movie.id}`; }}
+                    onError={e => { e.target.src = `https://picsum.photos/300/450?random=${movie.movie_id}`; }}
                   />
 
                   <div className="absolute inset-0 bg-gradient-to-t from-[#080808] via-transparent to-transparent opacity-80" />
@@ -142,7 +140,7 @@ const NowShowingPage = () => {
                         {movie.description}
                       </p>
                       <Link
-                        to={`/datebooking/${movie.id}`}
+                        to={`/datebooking/${movie.movie_id}`}
                         state={{ movie }}
                         className="mt-1 w-full flex items-center justify-center gap-2 bg-[#d4af37] text-black font-black text-[9px] tracking-[0.2em] uppercase py-2.5 rounded-xl hover:bg-white transition-colors"
                       >
