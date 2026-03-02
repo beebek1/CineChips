@@ -1,358 +1,423 @@
-import { useState } from "react";
-import { MdEventSeat } from "react-icons/md";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { MdEventSeat, MdArrowBack } from "react-icons/md";
+import { FaSpinner, FaCrown } from "react-icons/fa";
+import { getSeatsByShowtime, bookSeatApi, addStripeApi } from "../../services/api";
+import {StripeModal} from '../../components/payments/StripeModal';
+import BookingConfirmation from '../../components/payments/BookingComplete';
+import toast from "react-hot-toast";
 
-const initialSeatLayout = [
-  {
-    row: "A",
-    sections: [
-      [{ id: "A1", status: "available" }, { id: "A2", status: "available" }, { id: "A3", status: "booked" }],
-      [{ id: "A4", status: "available" }, { id: "A5", status: "available" }, { id: "A6", status: "available" }, { id: "A7", status: "available" }, { id: "A8", status: "available" }, { id: "A9", status: "available" }],
-      [{ id: "A10", status: "available" }, { id: "A11", status: "available" }, { id: "A12", status: "available" }]
-    ]
-  },
-  {
-    row: "B",
-    sections: [
-      [{ id: "B1", status: "available" }, { id: "B2", status: "available" }, { id: "B3", status: "available" }],
-      [{ id: "B4", status: "available" }, { id: "B5", status: "booked" }, { id: "B6", status: "available" }, { id: "B7", status: "available" }, { id: "B8", status: "available" }, { id: "B9", status: "available" }],
-      [{ id: "B10", status: "available" }, { id: "B11", status: "available" }, { id: "B12", status: "available" }]
-    ]
-  },
-  {
-    row: "C",
-    sections: [
-      [{ id: "C1", status: "available" }, { id: "C2", status: "available" }, { id: "C3", status: "available" }],
-      [{ id: "C4", status: "available" }, { id: "C5", status: "available" }, { id: "C6", status: "available" }, { id: "C7", status: "available" }, { id: "C8", status: "available" }, { id: "C9", status: "available" }],
-      [{ id: "C10", status: "available" }, { id: "C11", status: "available" }, { id: "C12", status: "available" }]
-    ]
-  },
-  {
-    row: "D",
-    sections: [
-      [{ id: "D1", status: "available" }, { id: "D2", status: "available" }, { id: "D3", status: "available" }],
-      [{ id: "D4", status: "available" }, { id: "D5", status: "available" }, { id: "D6", status: "available" }, { id: "D7", status: "available" }, { id: "D8", status: "available" }, { id: "D9", status: "available" }],
-      [{ id: "D10", status: "available" }, { id: "D11", status: "available" }, { id: "D12", status: "available" }]
-    ]
-  },
-  {
-    row: "E",
-    sections: [
-      [{ id: "E1", status: "available" }, { id: "E2", status: "available" }, { id: "E3", status: "available" }],
-      [{ id: "E4", status: "available" }, { id: "E5", status: "available" }, { id: "E6", status: "available" }, { id: "E7", status: "available" }, { id: "E8", status: "available" }, { id: "E9", status: "available" }],
-      [{ id: "E10", status: "available" }, { id: "E11", status: "available" }, { id: "E12", status: "available" }]
-    ]
-  },
-  {
-    row: "F",
-    sections: [
-      [{ id: "F1", status: "available" }, { id: "F2", status: "available" }, { id: "F3", status: "available" }],
-      [{ id: "F4", status: "available" }, { id: "F5", status: "available" }, { id: "F6", status: "available" }, { id: "F7", status: "available" }, { id: "F8", status: "available" }, { id: "F9", status: "available" }],
-      [{ id: "F10", status: "available" }, { id: "F11", status: "available" }, { id: "F12", status: "available" }]
-    ]
-  }
-];
+const formatTime = (t) => {
+  if (!t) return '';
+  const [h, m] = t.split(':');
+  const hour = parseInt(h);
+  return `${hour % 12 || 12}:${m} ${hour >= 12 ? 'PM' : 'AM'}`;
+};
+
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  return new Date(dateStr).toLocaleDateString('en-GB', {
+    day: '2-digit', month: 'short', year: 'numeric'
+  }).toUpperCase();
+};
+
+const MAX_SEATS = 10;
+const SERVICE_FEE_RATE = 0.05;
 
 const SeatBooking = () => {
-  const [seats, setSeats] = useState(initialSeatLayout);
+  const navigate = useNavigate();
+
+  //getting saved movie detail
+  const booking = JSON.parse(localStorage.getItem('activeBooking') || 'null');
+
+  const [clientSecret, setClientSecret] = useState("");
+  const [rows, setRows]                   = useState([]);
+  const [hall, setHall]                   = useState(null);
+  const [loading, setLoading]             = useState(true);
   const [selectedSeats, setSelectedSeats] = useState([]);
+  const [confirming, setConfirming]       = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
-  const [bookingId, setBookingId] = useState(null);
+  const [bookingId, setBookingId]         = useState(null);
 
-  const SEAT_PRICE = 500;
-  const MAX_SEATS = 10;
+  useEffect(() => {
+    if (!booking?.showtimeId) return;
 
-  const handleSeatClick = (rowIndex, sectionIndex, seatIndex) => {
-    const seat = seats[rowIndex].sections[sectionIndex][seatIndex];
-    if (seat.status === "booked") return;
-    const isSelected = seat.status === "selected";
-    
+    const fetchSeats = async () => {
+      setLoading(true);
+      try {
+        const res = await getSeatsByShowtime(booking.showtimeId);
+        setRows(res?.data?.rows ?? []);
+        setHall(res?.data?.hall ?? null);
+      } catch {
+        setRows([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchSeats();
+  }, []);
+
+  // ── SEAT CLICK ──────────────────────────────────────────────────────────────
+  const handleSeatClick = (rowIdx, seatIdx, seat) => {
+    if (seat.status === 'booked' || seat.status === 'reserved') return;
+
+    const isSelected = selectedSeats.some(s => s.showtime_seat_id === seat.showtime_seat_id);
+
     if (!isSelected && selectedSeats.length >= MAX_SEATS) {
-      alert(`You can only select up to ${MAX_SEATS} seats at a time.`);
+      alert(`Max ${MAX_SEATS} seats per booking.`);
       return;
     }
 
-    setSeats(prev =>
-      prev.map((row, rI) => {
-        if (rI !== rowIndex) return row;
-        return {
-          ...row,
-          sections: row.sections.map((section, sI) =>
-            sI !== sectionIndex
-              ? section
-              : section.map((s, seI) => {
-                  if (seI !== seatIndex) return s;
-                  const newStatus = s.status === "available" ? "selected" : "available";
-                  return { ...s, status: newStatus };
-                })
-          )
-        };
-      })
-    );
-
-    setSelectedSeats(prev => {
-      const exists = prev.find(s => s.id === seat.id);
-      return exists
-        ? prev.filter(s => s.id !== seat.id)
-        : [...prev, { id: seat.id, row: seats[rowIndex].row }];
-    });
-  };
-
-  const totalAmount = selectedSeats.length * SEAT_PRICE;
-  const serviceFee = Math.round(totalAmount * 0.05);
-  const finalAmount = totalAmount + serviceFee;
-
-  const confirmBooking = () => {
-    const id = 'BK' + Date.now().toString().slice(-8);
-    setBookingId(id);
-    setSeats(prev =>
-      prev.map(row => ({
+    // Toggle visual status in rows
+    setRows(prev => prev.map((row, rI) => {
+      if (rI !== rowIdx) return row;
+      return {
         ...row,
-        sections: row.sections.map(section =>
-          section.map(seat =>
-            seat.status === "selected" ? { ...seat, status: "booked" } : seat
-          )
-        )
-      }))
+        seats: row.seats.map((s, sI) => {
+          if (sI !== seatIdx) return s;
+          return { ...s, status: s.status === 'available' ? 'selected' : 'available' };
+        })
+      };
+    }));
+
+    setSelectedSeats(prev =>
+      isSelected
+        ? prev.filter(s => s.showtime_seat_id !== seat.showtime_seat_id)
+        : [...prev, { showtime_seat_id: seat.showtime_seat_id, seat_name: seat.seat_name, seat_type: seat.seat_type }]
     );
-    setBookingComplete(true);
   };
 
-  const resetBooking = () => {
-    setSelectedSeats([]);
-    setBookingComplete(false);
-    setBookingId(null);
-  };
-
+  // ── CANCEL SELECTION ────────────────────────────────────────────────────────
   const cancelSelection = () => {
-    setSeats(prev =>
-      prev.map(row => ({
-        ...row,
-        sections: row.sections.map(section =>
-          section.map(seat =>
-            seat.status === "selected" ? { ...seat, status: "available" } : seat
-          )
-        )
-      }))
-    );
+    setRows(prev => prev.map(row => ({
+      ...row,
+      seats: row.seats.map(s => s.status === 'selected' ? { ...s, status: 'available' } : s)
+    })));
     setSelectedSeats([]);
   };
 
-  return (
-    <div className='min-h-screen pt-20 md:pb-9 bg-[#080808] flex text-white overflow-hidden font-sans'>
-      {/* Dynamic Margin container to move UI when sidebar appears */}
-      <div className={`flex-1 flex flex-col items-center justify-center p-4 md:p-10 transition-all duration-500 ${selectedSeats.length > 0 && !bookingComplete ? 'md:mr-96' : ''}`}>
+  // ── CONFIRM PAYMENT ────────────────────────────────────────────────────────
+  const handlePayClick = async () => {
+  setConfirming(true);
+  try {
+    const response = await addStripeApi({finalAmount})
+    
+    setClientSecret(response.data.clientSecret);
+
+  } catch (err) {
+    toast.error(err?.response?.data?.message ||err.message ||  "Payment failed to initialize. Check your server connection.");
+
+  } finally {
+    setConfirming(false);
+  }
+};
+
+  // ── CONFIRM BOOKING ─────────────────────────────────────────────────────────
+const confirmBooking = async () => {
+
+  setTimeout(() => {
+    setClientSecret("")
+  }, 1000);
+
+  setConfirming(true);
+
+  try {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    const userId = user?.id ?? null;
+
+    // 1. API Calls to book seats
+    await Promise.all(
+      selectedSeats.map(s =>
+        bookSeatApi({ showtime_seat_id: s.showtime_seat_id, user_id: userId })
+      )
+    );
+
+    const newBookingId = 'CHIP-' + Date.now().toString().slice(-8);
+    setBookingId(newBookingId);
+    
+    setBookingComplete(true); 
         
-        <div className="text-center mb-8">
-          <h1 className='text-3xl md:text-4xl font-bold mb-2 text-[#d4af37] tracking-tight uppercase'>
-            DUNE: PART TWO
+    setRows(prev => prev.map(row => ({
+      ...row,
+      seats: row.seats.map(s =>
+        s.status === 'selected' ? { ...s, status: 'booked' } : s
+      )
+    })));
+
+  } catch (err) {
+    alert(err?.response?.data?.message ?? 'Booking failed. Please try again.');
+  } finally {
+    setConfirming(false);
+  }
+};
+
+  // ── PRICING ─────────────────────────────────────────────────────────────────
+  const basePrice  = booking?.hall?.price ?? 0;
+  const vipPrice   = hall?.vipPrice ?? basePrice;
+
+  const subtotal = selectedSeats.reduce((sum, s) => {
+    return sum + (s.seat_type === 'vip' ? vipPrice : basePrice);
+  }, 0);
+  const serviceFee  = Math.round(subtotal * SERVICE_FEE_RATE);
+  const finalAmount = subtotal + serviceFee;
+
+  // ── GUARDS ──────────────────────────────────────────────────────────────────
+  if (!booking) return (
+    <div className="min-h-screen bg-[#080808] flex flex-col items-center justify-center gap-4">
+      <p className="text-gray-500 text-xs uppercase tracking-widest font-black">No booking session found.</p>
+      <button onClick={() => navigate('/')} className="text-[#d4af37] border border-[#d4af37]/40 px-6 py-2 rounded text-xs uppercase tracking-widest font-black cursor-pointer">
+        Return Home
+      </button>
+    </div>
+  );
+
+  if (loading) return (
+    <div className="min-h-screen bg-[#080808] flex items-center justify-center">
+      <FaSpinner className="animate-spin text-[#d4af37] text-3xl" />
+    </div>
+  );
+
+  // ── RENDER ──────────────────────────────────────────────────────────────────
+  return (
+    <div className="min-h-screen pt-20 pb-12 bg-[#080808] flex text-white overflow-hidden font-sans">
+
+      {/* Back */}
+      <button
+        onClick={() => navigate(-1)}
+        className="fixed top-8 left-8 z-50 p-3 bg-white/5 backdrop-blur-xl border border-white/10 rounded-full text-white cursor-pointer hover:bg-[#d4af37] hover:text-black transition-all active:scale-90"
+      >
+        <MdArrowBack size={20} />
+      </button>
+
+      {/* Main area shifts left when sidebar is open */}
+      <div className={`flex-1 flex flex-col items-center p-4 md:p-10 transition-all duration-500 ${selectedSeats.length > 0 && !bookingComplete ? 'md:mr-96' : ''}`}>
+
+        {/* Header */}
+        <div className="text-center mb-10">
+          <h1 className="text-3xl md:text-4xl font-black mb-2 text-[#d4af37] tracking-tight uppercase capitalize">
+            {booking.movieTitle}
           </h1>
-          <p className="text-gray-500 text-sm md:text-base tracking-widest font-medium">
-            QFX CIVIL MALL | 7:00 PM | ACTION/SCI-FI
+          <p className="text-gray-500 text-sm tracking-widest font-medium uppercase">
+            {booking.hall?.name ?? ''} &nbsp;|&nbsp; {formatTime(booking.slot?.time)} &nbsp;|&nbsp; {formatDate(booking.schedule?.fullDate)}
+          </p>
+          <p className="text-gray-600 text-xs tracking-widest mt-1 uppercase">
+            {booking.showing?.language} &nbsp;·&nbsp; {booking.genre}
           </p>
         </div>
 
-        {/* Thinner Brighter White Screen */}
-        <div className="relative w-full max-w-4xl mx-auto mb-20 md:mb-15">
-          {/* The Light Beam Projection - Casts light toward seats */}
-          <div 
-            className="absolute top-2 left-1/2 -translate-x-1/2 w-[110%] h-[250px] pointer-events-none"
+        {/* Screen */}
+        <div className="relative w-full max-w-4xl mx-auto mb-16">
+          <div
+            className="absolute top-2 left-1/2 -translate-x-1/2 w-[110%] h-[200px] pointer-events-none"
             style={{
-              background: 'radial-gradient(ellipse at top, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 50%, transparent 80%)',
+              background: 'radial-gradient(ellipse at top, rgba(255,255,255,0.10) 0%, rgba(255,255,255,0.02) 50%, transparent 80%)',
               clipPath: 'polygon(15% 0%, 85% 0%, 100% 100%, 0% 100%)',
               filter: 'blur(35px)'
             }}
-          ></div>
-
-          {/* Thin Screen SVG */}
-          <svg className="relative z-10 mx-auto" width="100%" height="80" viewBox="0 0 600 80" preserveAspectRatio="xMidYMid meet">
+          />
+          <svg className="relative z-10 mx-auto" width="100%" height="60" viewBox="0 0 600 60" preserveAspectRatio="xMidYMid meet">
             <defs>
-              <filter id="thinGlow" x="-20%" y="-20%" width="140%" height="180%">
+              <filter id="glow">
                 <feGaussianBlur stdDeviation="3" result="blur" />
                 <feComposite in="SourceGraphic" in2="blur" operator="over" />
               </filter>
             </defs>
-            
-            {/* Thinner White Screen Line (4px instead of 10px) */}
-            <path 
-              d="M40 40 Q300 -10 560 40" 
-              stroke="white" 
-              strokeWidth="4" 
-              fill="transparent" 
-              strokeLinecap="round"
-              filter="url(#thinGlow)"
-              className="opacity-100"
-            />
-            
-            {/* Label moved further below the arc */}
-            <text x="300" y="70" textAnchor="middle" fill="white" fontSize="9" fontWeight="900" letterSpacing="12" className="opacity-30 uppercase tracking-[1em]">
-              SCREEN
-            </text>
+            <path d="M40 35 Q300 -5 560 35" stroke="white" strokeWidth="3" fill="transparent" strokeLinecap="round" filter="url(#glow)" className="opacity-90" />
+            <text x="300" y="55" textAnchor="middle" fill="white" fontSize="8" fontWeight="900" letterSpacing="12" className="opacity-25 uppercase">SCREEN</text>
           </svg>
         </div>
 
-        <div className="flex flex-col gap-8 md:gap-14 items-center">
-          <div className="flex flex-col gap-6 md:gap-7 items-center">
-            {seats.map((row, rowIndex) => {
-              const flatSeats = row.sections.flat();
-              const totalSeats = flatSeats.length;
-              const archHeight = 80;
+        {/* Seat Grid */}
+        <div className="flex flex-col gap-8 items-center w-full">
+          {rows.map((row, rowIdx) => {
+            const totalSeats = row.seats.length;
 
-              return (
-                <div key={row.row} className="flex items-center gap-2 md:gap-13">
-                  <span className="text-gray-700 text-[10px] font-black w-4">{row.row}</span>
-                  {row.sections.map((section, sectionIndex) => (
-                    <div key={sectionIndex} className="flex gap-1 md:gap-4">
-                      {section.map((seat, seatIndex) => {
-                        const globalSeatIndex = row.sections
-                          .slice(0, sectionIndex)
-                          .reduce((acc, sec) => acc + sec.length, 0) + seatIndex;
-                        const x = globalSeatIndex / (totalSeats - 1);
-                        const translateY = -archHeight * 4 * (x - 0.5) * (x - 0.5) + archHeight;
-                        const rotationZ = -(2 * x - 1) * 25;
-                        const rotationX = (1 - Math.abs(2 * x - 1)) * 10;
+            return (
+              <div key={row.row_label} className="flex items-center gap-3 md:gap-4">
+                <span className="text-gray-600 text-[10px] font-black w-4 text-right">{row.row_label}</span>
 
-                        return (
-                          <div
-                            key={seat.id}
-                            onClick={() => handleSeatClick(rowIndex, sectionIndex, seatIndex)}
-                            className={`transition-all duration-300 transform
-                              ${seat.status === "available" && "text-gray-600 cursor-pointer hover:text-white hover:scale-110"}
-                              ${seat.status === "selected" && "text-[#d4af37] cursor-pointer scale-110 drop-shadow-[0_0_8px_rgba(212,175,55,0.5)]"}
-                              ${seat.status === "booked" && "text-white/10 cursor-not-allowed"}`}
-                            style={{
-                              transform: `translateY(${translateY}px) rotateZ(${rotationZ}deg) rotateX(${rotationX}deg)`
-                            }}
-                          >
-                            <MdEventSeat size={window.innerWidth < 768 ? 24 : 32} />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                  <span className="text-gray-700 text-[10px] font-black w-4">{row.row}</span>
+                <div className="flex gap-1 md:gap-5">
+                  {row.seats.map((seat, seatIdx) => {
+                    const x = totalSeats > 1 ? seatIdx / (totalSeats - 1) : 0.5;
+                    const archHeight   = 50;
+                    const translateY   = -archHeight * 4 * (x - 0.5) * (x - 0.5) + archHeight;
+                    const rotationZ    = -(2 * x - 1) * 20;
+                    const isSelected   = seat.status === 'selected';
+                    const isBooked     = seat.status === 'booked' || seat.status === 'reserved';
+                    const isVip        = seat.seat_type === 'vip';
+
+                    return (
+                      <div
+                        key={seat.seat_name}
+                        onClick={() => handleSeatClick(rowIdx, seatIdx, seat)}
+                        title={`${seat.seat_name} · ${seat.seat_type} · ${seat.status}`}
+                        className={`relative transition-all duration-300 cursor-pointer
+                          ${isBooked    ? 'text-white/10 cursor-not-allowed' : ''}
+                          ${!isBooked && !isSelected && !isVip ? 'text-gray-600 hover:text-white hover:scale-110' : ''}
+                          ${!isBooked && !isSelected && isVip  ? 'text-amber-600/60 hover:text-amber-400 hover:scale-110' : ''}
+                          ${isSelected && !isVip ? 'text-[#d4af37] scale-110 drop-shadow-[0_0_8px_rgba(212,175,55,0.6)]' : ''}
+                          ${isSelected && isVip  ? 'text-amber-300 scale-110 drop-shadow-[0_0_10px_rgba(251,191,36,0.8)]' : ''}
+                        `}
+                        style={{ transform: `translateY(${translateY}px) rotateZ(${rotationZ}deg)` }}
+                      >
+                        <MdEventSeat size={window.innerWidth < 768 ? 22 : 28} />
+                        {isVip && !isBooked && (
+                          <FaCrown
+                            size={7}
+                            className={`absolute -top-1.5 left-1/2 -translate-x-1/2 ${isSelected ? 'text-amber-300' : 'text-amber-600/60'}`}
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
-              );
-            })}
-          </div>
 
-          {/* Legend */}
-          <div className="flex flex-wrap gap-4 md:gap-10 mt-10 md:mt-20 border-t border-white/5 pt-6 justify-center">
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
-              <MdEventSeat className="text-gray-600" size={20} /> Available
+                <span className="text-gray-600 text-[10px] font-black w-4">{row.row_label}</span>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Legend */}
+        <div className="flex flex-wrap gap-6 md:gap-10 mt-20 border-t border-white/5 pt-6 justify-center">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
+            <MdEventSeat className="text-gray-600" size={18} /> Available
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
+            <MdEventSeat className="text-[#d4af37]" size={18} /> Selected
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
+            <MdEventSeat className="text-white/10" size={18} /> Booked
+          </div>
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
+            <div className="relative">
+              <MdEventSeat className="text-amber-600/60" size={18} />
+              <FaCrown size={6} className="absolute -top-1.5 left-1/2 -translate-x-1/2 text-amber-600/60" />
             </div>
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
-              <MdEventSeat className="text-[#d4af37]" size={20} /> Selected
+            VIP (Rs. {vipPrice})
+          </div>
+        </div>
+      </div>
+
+      {/* ── SIDEBAR SUMMARY ─────────────────────────────────────────────────── */}
+      {selectedSeats.length > 0 && !bookingComplete && (
+        <div className="fixed top-16 right-0 h-[calc(100vh-4rem)] w-full md:w-96 bg-[#0f0f0f] border-l border-white/10 p-6 md:p-8 shadow-2xl overflow-y-auto z-40 transition-all duration-500">
+          <div className="flex flex-col h-full justify-between">
+            <div>
+              <h3 className="text-[10px] font-black uppercase tracking-[0.4em] mb-8 text-gray-500">Booking Summary</h3>
+
+              <div className="mb-5 pb-5 border-b border-white/5 space-y-1">
+                <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest">Movie</p>
+                <p className="font-bold text-white capitalize">{booking.movieTitle}</p>
+              </div>
+
+              <div className="mb-5 pb-5 border-b border-white/5 space-y-1">
+                <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest">Hall & Time</p>
+                <p className="font-bold text-white text-sm">{booking.hall?.name}</p>
+                <p className="text-gray-500 text-xs">{formatTime(booking.slot?.time)} · {formatDate(booking.schedule?.fullDate)}</p>
+              </div>
+
+              <div className="mb-5 pb-5 border-b border-white/5 space-y-1">
+                <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest">Language</p>
+                <p className="font-bold text-white text-sm">{booking.showing?.language}</p>
+              </div>
+
+              <div className="mb-6 space-y-2">
+                <p className="text-[10px] text-gray-600 uppercase font-black tracking-widest mb-3">
+                  Selected Seats ({selectedSeats.length}/{MAX_SEATS})
+                </p>
+                <div className="flex gap-2 flex-wrap">
+                  {selectedSeats.map(s => (
+                    <span
+                      key={s.showtime_seat_id}
+                      className={`font-black px-3 py-1 rounded text-xs flex items-center gap-1 ${
+                        s.seat_type === 'vip'
+                          ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30'
+                          : 'bg-[#d4af37] text-black'
+                      }`}
+                    >
+                      {s.seat_type === 'vip' && <FaCrown size={7} />}
+                      {s.seat_name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {selectedSeats.filter(s => s.seat_type !== 'vip').length > 0 && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-gray-500">
+                      Standard × {selectedSeats.filter(s => s.seat_type !== 'vip').length}
+                    </span>
+                    <span className="text-white font-bold">
+                      Rs. {selectedSeats.filter(s => s.seat_type !== 'vip').length * basePrice}
+                    </span>
+                  </div>
+                )}
+                {selectedSeats.filter(s => s.seat_type === 'vip').length > 0 && (
+                  <div className="flex justify-between text-xs">
+                    <span className="text-amber-400/70">
+                      VIP × {selectedSeats.filter(s => s.seat_type === 'vip').length}
+                    </span>
+                    <span className="text-amber-400 font-bold">
+                      Rs. {selectedSeats.filter(s => s.seat_type === 'vip').length * vipPrice}
+                    </span>
+                  </div>
+                )}
+                <div className="flex justify-between text-xs">
+                  <span className="text-gray-500">Service Fee (5%)</span>
+                  <span className="text-white font-bold">Rs. {serviceFee}</span>
+                </div>
+                <div className="flex justify-between text-xl font-light border-t border-white/5 pt-5 mt-3">
+                  <span className="text-gray-400">Total</span>
+                  <span className="text-[#d4af37] font-bold">Rs. {finalAmount}</span>
+                </div>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-widest text-gray-500">
-              <MdEventSeat className="text-white/10" size={20} /> Booked
+
+            <div className="flex flex-col gap-3 mt-10">
+              <button
+                onClick={cancelSelection}
+                className="cursor-pointer w-full text-gray-500 hover:text-white font-bold py-3 text-xs uppercase tracking-widest transition-all"
+              >
+                Cancel Selection
+              </button>
+              <button
+                disabled={confirming}
+                onClick={handlePayClick}
+                className="cursor-pointer w-full bg-[#d4af37] hover:bg-[#c19d2d] text-black font-black py-4 rounded-xl transition-all active:scale-95 uppercase text-xs tracking-[0.2em] flex items-center justify-center gap-2 disabled:opacity-60"
+              >
+                {confirming ? <><FaSpinner className="animate-spin" /> Confirming...</> : 'Confirm & Pay'}
+              </button>
             </div>
           </div>
         </div>
+      )}
 
-        {/* Sidebar Summary - Restored functionality */}
-        {selectedSeats.length > 0 && !bookingComplete && (
-          <div className="fixed top-16 right-0 h-[calc(100vh-4rem)] w-full md:w-96 bg-[#111] border-l border-white/10 p-4 md:p-8 shadow-3xl transform transition-transform duration-500 ease-in-out translate-x-0 overflow-y-auto z-40">
-            <div className="flex flex-col h-full justify-between">
-              <div>
-                <h3 className="text-xs font-black uppercase tracking-[0.4em] mb-10 text-gray-400">Booking Summary</h3>
-                
-                <div className="mb-6 pb-6 border-b border-white/5">
-                  <p className="text-[10px] text-gray-600 uppercase font-bold tracking-widest mb-1">Movie</p>
-                  <p className="font-bold text-lg text-white">Dune: Part Two</p>
-                </div>
+      {/* this is for stripe */}
+      {clientSecret && (
+         <StripeModal 
+          key={clientSecret}
+          clientSecret={clientSecret} 
+          onSuccess={confirmBooking}
+         />
+       )}
 
-                <div className="mb-6 pb-6 border-b border-white/5">
-                  <p className="text-[10px] text-gray-600 uppercase font-bold tracking-widest mb-1">Theater & Time</p>
-                  <p className="font-bold text-white">QFX Civil Mall | 7:00 PM</p>
-                </div>
-                
-                <div className="flex flex-col mb-10">
-                  <span className="text-[10px] text-gray-600 uppercase font-bold tracking-widest mb-3">Selected Seats ({selectedSeats.length}/{MAX_SEATS})</span>
-                  <div className="flex gap-2 flex-wrap">
-                    {selectedSeats.map(seat => (
-                      <span key={seat.id} className="bg-[#d4af37] text-black font-black px-3 py-1 rounded text-xs">
-                        {seat.id}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="pt-4 space-y-3">
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">Price per seat</span>
-                    <span className="text-white font-bold">Rs. {SEAT_PRICE}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">Subtotal</span>
-                    <span className="text-white font-bold">Rs. {totalAmount}</span>
-                  </div>
-                  <div className="flex justify-between text-xs">
-                    <span className="text-gray-500">Service Fee (5%)</span>
-                    <span className="text-white font-bold">Rs. {serviceFee}</span>
-                  </div>
-                  <div className="flex justify-between text-2xl font-light border-t border-white/5 pt-6 mt-6">
-                    <span className="text-gray-400">Total</span>
-                    <span className="text-[#d4af37] font-bold">Rs. {finalAmount}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-4 mt-12">
-                <button 
-                  className="w-full text-gray-500 hover:text-white font-bold py-3 text-xs uppercase tracking-widest transition-all"
-                  onClick={cancelSelection}
-                >
-                  Cancel Selection
-                </button>
-                <button 
-                  className="w-full bg-[#d4af37] hover:bg-[#c19d2d] text-black font-black py-4 rounded-xl transition-all active:scale-95 shadow-xl shadow-[#d4af37]/5 uppercase text-xs tracking-[0.2em]"
-                  onClick={confirmBooking}
-                >
-                  Confirm & Pay
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* Success Modal */}
-        {bookingComplete && (
-          <div className="fixed inset-0 bg-black/95 flex items-center justify-center p-4 z-50 backdrop-blur-sm">
-            <div className="bg-[#111] border border-white/10 rounded-3xl p-8 max-w-md w-full shadow-2xl">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-[#d4af37]/20 rounded-full flex items-center justify-center mx-auto mb-6">
-                   <MdEventSeat className="text-[#d4af37]" size={32} />
-                </div>
-                
-                <h2 className="text-2xl font-bold text-white mb-2 uppercase tracking-tight">Booking Successful!</h2>
-                <p className="text-gray-500 text-sm mb-8 tracking-wide">Your seats are secured.</p>
-                
-                <div className="bg-white/5 rounded-2xl p-6 mb-8 space-y-4">
-                  <div className="flex justify-between text-xs uppercase tracking-widest">
-                    <span className="text-gray-500">Booking ID</span>
-                    <span className="font-bold text-[#d4af37]">{bookingId}</span>
-                  </div>
-                  <div className="flex justify-between text-xs uppercase tracking-widest">
-                    <span className="text-gray-500">Seats</span>
-                    <span className="text-white font-bold">{selectedSeats.map(s => s.id).join(', ')}</span>
-                  </div>
-                  <div className="flex justify-between text-xs uppercase tracking-widest">
-                    <span className="text-gray-500">Paid Amount</span>
-                    <span className="text-white font-bold">Rs. {finalAmount}</span>
-                  </div>
-                </div>
-
-                <button 
-                  className="w-full bg-white text-black font-black py-4 rounded-xl transition-all active:scale-95 uppercase text-xs tracking-widest"
-                  onClick={resetBooking}
-                >
-                  Return to Home
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
+      {bookingComplete && (
+        <BookingConfirmation 
+          isOpen={bookingComplete} 
+          bookingId={bookingId} 
+          booking={{
+            movieTitle: booking.movieTitle,
+            hall: { name: booking.hall?.name },
+            slot: { time: booking.slot?.time },
+            schedule : { date: booking.schedule},
+            showtimeId: { showtimeId: booking.showtimeId}
+          }}
+          selectedSeats={selectedSeats}
+          finalAmount={finalAmount} 
+        />
+      )}
     </div>
   );
 };

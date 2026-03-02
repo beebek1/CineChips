@@ -12,13 +12,11 @@ const getCoverUrl = (filename) => {
   return `${IMAGE_BASE}/uploads/${filename}`;
 };
 
-// Transform flat showtime records for one movie into the nested structure the UI needs:
-// schedules = [ { fullDate, halls: [ { name, location, price, hallId, showings: [ { language, slots: [ { time, showtimeId } ] } ] } ] } ]
 const buildSchedules = (showtimes) => {
   const dateMap = {};
 
   showtimes.forEach(s => {
-    const date = s.show_date.split('T')[0]; // YYYY-MM-DD
+    const date = s.show_date.split('T')[0];
     if (!dateMap[date]) dateMap[date] = {};
 
     const hallKey = s.hall_id;
@@ -37,8 +35,8 @@ const buildSchedules = (showtimes) => {
       dateMap[date][hallKey].langMap[lang] = [];
     }
     dateMap[date][hallKey].langMap[lang].push({
-      time:       s.show_time.slice(0, 5), // HH:MM
-      showtimeId: s.id,
+      time:       s.show_time.slice(0, 5),
+      showtimeId: s.showtime_id,
     });
   });
 
@@ -70,27 +68,25 @@ const MovieBookingDashboard = () => {
   const navigate = useNavigate();
   const movie    = location.state?.movie;
 
-  const [schedules, setSchedules]       = useState([]);
-  const [loading, setLoading]           = useState(true);
-  const [selectedSchedule, setSelectedSchedule] = useState(null);
-  const [selectedHall, setSelectedHall]         = useState(null);
-  const [selectedShowing, setSelectedShowing]   = useState(null);
-  const [selectedSlot, setSelectedSlot]         = useState(null);
+  const [schedules, setSchedules]                   = useState([]);
+  const [loading, setLoading]                       = useState(true);
+  const [selectedSchedule, setSelectedSchedule]     = useState(null);
+  const [selectedHall, setSelectedHall]             = useState(null);
+  const [selectedShowing, setSelectedShowing]       = useState(null);
+  const [selectedSlot, setSelectedSlot]             = useState(null);
 
-  // Fetch and transform showtimes for this movie
   useEffect(() => {
     if (!movie) return;
 
     const fetch = async () => {
       setLoading(true);
       try {
-        const res  = await getShowTimes();
-        const raw  = res?.data?.showtimes ?? res?.data?.schedules ?? res?.data ?? [];
-        const mine = raw.filter(s => String(s.movie_id) === String(movie.id));
+        const res   = await getShowTimes();
+        const raw   = res?.data?.showtimes ?? res?.data?.schedules ?? res?.data ?? [];
+        const mine  = raw.filter(s => String(s.movie_id) === String(movie.movie_id));
         const built = buildSchedules(mine);
         setSchedules(built);
 
-        // Auto-select first date
         if (built.length > 0) setSelectedSchedule(built[0]);
       } catch {
         setSchedules([]);
@@ -110,7 +106,7 @@ const MovieBookingDashboard = () => {
 
   const onclickHandler = () => {
     const bookingSummary = {
-      movieId:    movie.id,
+      movieId:    movie.movie_id,
       movieTitle: movie.title,
       genre:      movie.genre,
       schedule:   selectedSchedule,
@@ -120,7 +116,7 @@ const MovieBookingDashboard = () => {
       showtimeId: selectedSlot?.showtimeId,
     };
     localStorage.setItem('activeBooking', JSON.stringify(bookingSummary));
-    navigate(`/seatbooking/${movie.id}`);
+    navigate(`/seatbooking/${movie.movie_id}`);
   };
 
   if (!movie) return (
