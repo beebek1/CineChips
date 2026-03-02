@@ -118,6 +118,8 @@ export const getSeatsByShowtime = async (req, res) => {
   }
 };
 
+
+
 export const bookSeat = async (req, res) => {
   try {
     const { showtime_seat_id, user_id } = req.body;
@@ -146,6 +148,8 @@ export const bookSeat = async (req, res) => {
     return res.status(500).json({ success: false, message: err.message });
   }
 };
+
+
 
 export const releaseSeat = async (req, res) => {
   try {
