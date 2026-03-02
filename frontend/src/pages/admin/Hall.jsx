@@ -38,7 +38,7 @@ const HallAdminMaster = () => {
   // --- HANDLERS ---
   const handleOpenModal = (hall = null) => {
     if (hall) {
-      setEditingId(hall.id);
+      setEditingId(hall.hall_id);
       setFormData({
         name: hall.name,
         location: hall.location,
@@ -90,7 +90,7 @@ const HallAdminMaster = () => {
 
   const deleteHall = async (id) => {
     if (window.confirm("Delete this hall? All seating records and schedules will be lost.")) {
-      setHalls(halls.filter(h => h.id !== id));
+      setHalls(halls.filter(h => h.hall_id !== id));
       try{
         console.log(editingId)
         const res = await deleteHallApi(id)
@@ -132,7 +132,7 @@ const HallAdminMaster = () => {
                 </div>
                 <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <button onClick={() => handleOpenModal(hall)} className="cursor-pointer p-3 bg-white/5 rounded-xl text-gray-500 hover:text-white transition-colors"><FaEdit size={12} /></button>
-                  <button onClick={() => deleteHall(hall.id)} className="cursor-pointer p-3 bg-red-500/5 rounded-xl text-red-500/50 hover:text-red-500 transition-colors"><FaTrash size={12} /></button>
+                  <button onClick={() => deleteHall(hall.hall_id)} className="cursor-pointer p-3 bg-red-500/5 rounded-xl text-red-500/50 hover:text-red-500 transition-colors"><FaTrash size={12} /></button>
                 </div>
               </div>
 
