@@ -4,7 +4,7 @@ import { sequelize } from "../../db/database.js"; // Ensure the .js extension is
 const Movie = sequelize.define(
   "Movie",
   {
-    id: {
+    movie_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
