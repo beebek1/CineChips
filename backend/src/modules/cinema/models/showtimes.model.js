@@ -4,7 +4,7 @@ import { sequelize } from "../../../db/database.js";
 const ShowTime = sequelize.define(
   "showTime",
   {
-    id: {
+    showtime_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
