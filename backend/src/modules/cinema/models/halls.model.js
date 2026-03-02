@@ -4,7 +4,7 @@ import { sequelize } from "../../../db/database.js"; // Note the .js extension
 const HallModel = sequelize.define(
   "hallModel",
   {
-    id: {
+    hall_id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true,
