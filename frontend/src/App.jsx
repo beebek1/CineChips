@@ -1,11 +1,13 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Outlet, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
+
 // Layouts
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Sidebar from './components/Sidebar';
 import { ScrollToTop, NotFound } from './components/Elements';
+import getUserRole from './protected/authRole'
 
 // Auth & User Pages
 import SignUp from './pages/auth/signup';
@@ -52,26 +54,27 @@ const AdminLayout = () => {
     </div>
   );
 };
-
 function AppWrapper() {
-  const role = "org"; 
+  const role = getUserRole();
 
   return (
     <>
       <Toaster position='top-right' />
       <Routes>
-        {/* --- AUTH ROUTES (No Navbar/Footer) --- */}
-        <Route path="/signup" element={<SignUp />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/reset-password" element={<Forgetpassword />} />
+        {!role && (
+          <>
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/signin" element={<SignIn />} />
+          <Route path="/reset-password" element={<Forgetpassword />} />
+          </>
+        )}
 
-        {/* --- ADMIN ROUTES (Prefixed with /admin) --- */}
         {role === "org" && (
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route path="dashboard" element={<AdminHome />} />
-            <Route path="movies" element={<AdminMovie />} />
-            <Route path="halls" element={<AdminHall />} />
-            <Route path="schedules" element={<AdminSchedule />} />
+          <Route element={<AdminLayout />}>
+            <Route path="/" element={<AdminHome />} />
+            <Route path="/movies" element={<AdminMovie />} />
+            <Route path="/halls" element={<AdminHall />} />
+            <Route path="/schedules" element={<AdminSchedule />} />
           </Route>
         )}
 
@@ -88,12 +91,13 @@ function AppWrapper() {
           </Route>
         )}
 
-        {/* --- FALLBACK --- */}
         <Route path="*" element={<NotFound />} />
       </Routes>
     </>
   );
 }
+
+
 
 function App() {
   return (
