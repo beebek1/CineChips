@@ -6,6 +6,7 @@ import { enum_users_role } from "@prisma/client";
 import db from "../../db/db.js";
 import { ApiError } from "../../utils/apiError.js";
 import type { LoginInput, RegisterInput } from "./auth.validator.js";
+import jwt, { type SignOptions } from "jsonwebtoken";
 
 
 export const register = async(data: RegisterInput) => {
@@ -47,8 +48,10 @@ export const login = async(data:LoginInput) =>{
     const isPasswordCorrect = await bcrypt.compare(data.password, user.password);
 
     if(!isPasswordCorrect){
-        return 
+        throw new ApiError(StatusCodes.BAD_REQUEST, "email or password didn't match")
     }
 
-
+    const payload = { id: user.user_id, role: user.role}
+    const options: SignOptions = {expiresIn: process.env.JWT_EXPIRES_IN as string || "7d" as any}
+    const token = jwt.sign(payload, process.env.JWT_SECRET!, options )
 }
