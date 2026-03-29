@@ -4,7 +4,7 @@ export class ApiError extends Error{
     public success: boolean;
     public errors: any;
 
-    constructor(statusCode: number, errors=[], message = "something went wrong"){
+    constructor(statusCode: number, message = "something went wrong", errors=[], ){
         //using super to map the stack trace
         super(message);
         this.statusCode = statusCode,

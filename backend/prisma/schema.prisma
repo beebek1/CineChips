@@ -117,8 +117,8 @@ model users {
   isVerified               Boolean?         @default(false)
   verificationToken        String?          @db.VarChar(255)
   verificationTokenExpires DateTime?        @db.Timestamptz(6)
-  createdAt                DateTime         @db.Timestamptz(6)
-  updatedAt                DateTime         @db.Timestamptz(6)
+  createdAt                DateTime?         @default(now())             @db.Timestamptz(6)
+  updatedAt                DateTime?         @updatedAt                  @db.Timestamptz(6)
   ShowtimeSeats            ShowtimeSeats[]
   bookings                 bookings[]
 }
