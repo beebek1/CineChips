@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import { sequelize, connectDB } from "./db/database.js";
 import rootRouter from "./modules/main.router.js";
+import errorHandler from "./middlewares/error.middleware.js";
 import { fileURLToPath } from "url";
 import path from "path";
 import './utils/crons.js'; 
@@ -46,4 +47,5 @@ const startServer = async () => {
 
 startServer();
 
+app.use(errorHandler);
 export default app;
