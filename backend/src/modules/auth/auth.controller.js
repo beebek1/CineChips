@@ -1,5 +1,6 @@
 import {User} from "../associations.js";
-import sendEmail from "../../utils/sendEmail.js";
+import emailSender from "../../utils/sendEmail.js";
+import registrationEmailTemplate from "../../utils/emailTemplates/register.js";
 
 import bcrypt from "bcrypt";
 import crypto from "crypto";
@@ -69,20 +70,13 @@ export const addUser = async (req, res) => {
       verificationTokenExpires,
     });
 
-    const verifyLink = `http://localhost:3000/api/user/verify-email?token=${verificationToken}`;
+    const verifyLink = `http://localhost:3000/api/verify-email?token=${verificationToken}`;
+    
 
-    await sendEmail(
-      email,
-      "Verify you Email address",
-      `
-          <h2>verify your identity</h2>
-          <p>if you haven't login from email then don't veirfy your email</p>
-          <a href= ${verifyLink}>Click to Verify</a>
-        `,
-    );
+    emailSender(registrationEmailTemplate(username, verifyLink), "verify your email", email)
 
     return res.status(201).json({
-      message: "User added successfully",
+      message: "kindly verify your email",
       user: newUser,
     });
     
@@ -165,7 +159,7 @@ export const loginUser = async (req, res) => {
 
   const token = jwt.sign(
     {
-      id: user.id,
+      id: user.user_id,
       role: user.role,
     },
     process.env.JWT_SECRET,

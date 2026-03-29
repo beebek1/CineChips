@@ -1,0 +1,174 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model CinemaHalls {
+  hall_id       Int         @id @default(autoincrement())
+  name          String      @db.VarChar(255)
+  total_rows    Int
+  total_columns Int
+  basePrice     Int
+  vipPrice      Int
+  location      String      @db.VarChar(255)
+  createdAt     DateTime    @db.Timestamptz(6)
+  updatedAt     DateTime    @db.Timestamptz(6)
+  Seats         Seats[]
+  showtimes     showtimes[]
+}
+
+model MovieShowTime {
+  id        Int      @id @default(autoincrement())
+  movieId   Int
+  theaterId Int
+  date      DateTime @db.Timestamptz(6)
+  startTime DateTime @db.Time(6)
+  endTime   DateTime @db.Time(6)
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+}
+
+model Seats {
+  seat_id       Int                   @id @default(autoincrement())
+  seat_name     String                @db.VarChar(255)
+  row_label     String                @db.VarChar(255)
+  col_number    Int
+  seat_type     enum_Seats_seat_type? @default(standard)
+  createdAt     DateTime              @db.Timestamptz(6)
+  updatedAt     DateTime              @db.Timestamptz(6)
+  hall_id       Int?
+  CinemaHalls   CinemaHalls?          @relation(fields: [hall_id], references: [hall_id], onDelete: Cascade)
+  ShowtimeSeats ShowtimeSeats[]
+}
+
+model ShowtimeSeats {
+  showtime_seat_id Int                        @id @default(autoincrement())
+  status           enum_ShowtimeSeats_status? @default(available)
+  booked_by        Int?
+  createdAt        DateTime                   @db.Timestamptz(6)
+  updatedAt        DateTime                   @db.Timestamptz(6)
+  showtime_id      Int?
+  seat_id          Int?
+  users            users?                     @relation(fields: [booked_by], references: [user_id])
+  Seats            Seats?                     @relation(fields: [seat_id], references: [seat_id], onDelete: Cascade)
+  showtimes        showtimes?                 @relation(fields: [showtime_id], references: [showtime_id], onDelete: Cascade)
+
+  @@unique([showtime_id, seat_id], map: "showtime_seats_showtime_id_seat_id")
+}
+
+model bookings {
+  booking_id   String               @id @db.VarChar(255)
+  movie_name   String               @db.VarChar(255)
+  hall_name    String               @db.VarChar(255)
+  show_time    String               @db.VarChar(255)
+  show_date    DateTime             @db.Date
+  booked_seats String
+  total_price  Float
+  status       enum_bookings_status @default(unchecked)
+  createdAt    DateTime             @db.Timestamptz(6)
+  updatedAt    DateTime             @db.Timestamptz(6)
+  showtime_id  Int?
+  user_id      Int?
+  showtimes    showtimes?           @relation(fields: [showtime_id], references: [showtime_id], onDelete: Cascade)
+  users        users?               @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+}
+
+model movies {
+  movie_id    Int                @id @default(autoincrement())
+  title       String             @unique @db.VarChar(255)
+  description String             @db.VarChar(255)
+  duration    String             @db.VarChar(255)
+  genre       String?            @db.VarChar(255)
+  trailerLink String?            @db.VarChar(255)
+  coverPic    String?            @db.VarChar(255)
+  status      enum_movies_status @default(Showing)
+  releaseDate DateTime           @db.Timestamptz(6)
+  featured    Boolean?           @default(false)
+  createdAt   DateTime           @db.Timestamptz(6)
+  updatedAt   DateTime           @db.Timestamptz(6)
+  showtimes   showtimes[]
+}
+
+model showtimes {
+  showtime_id   Int             @id @default(autoincrement())
+  price         Int?
+  show_date     DateTime        @db.Timestamptz(6)
+  show_time     DateTime        @db.Time(6)
+  language      String          @db.VarChar(255)
+  createdAt     DateTime        @db.Timestamptz(6)
+  updatedAt     DateTime        @db.Timestamptz(6)
+  movie_id      Int?
+  hall_id       Int?
+  ShowtimeSeats ShowtimeSeats[]
+  bookings      bookings[]
+  CinemaHalls   CinemaHalls?    @relation(fields: [hall_id], references: [hall_id], onDelete: Cascade)
+  movies        movies?         @relation(fields: [movie_id], references: [movie_id], onDelete: Cascade)
+}
+
+model users {
+  user_id                  Int              @id @default(autoincrement())
+  username                 String           @db.VarChar(255)
+  email                    String?          @unique @db.VarChar(255)
+  password                 String           @db.VarChar(255)
+  role                     enum_users_role? @default(user)
+  isVerified               Boolean?         @default(false)
+  verificationToken        String?          @db.VarChar(255)
+  verificationTokenExpires DateTime?        @db.Timestamptz(6)
+  createdAt                DateTime         @db.Timestamptz(6)
+  updatedAt                DateTime         @db.Timestamptz(6)
+  ShowtimeSeats            ShowtimeSeats[]
+  bookings                 bookings[]
+}
+
+enum enum_Seats_seat_type {
+  standard
+  vip
+}
+
+enum enum_ShowtimeSeats_status {
+  available
+  booked
+  reserved
+}
+
+enum enum_bookings_status {
+  expired
+  unchecked
+  checked
+}
+
+enum enum_buses_class {
+  Luxury
+  Semi_Luxury @map("Semi-Luxury")
+  Standard
+}
+
+enum enum_buses_comfort {
+  AC
+  Non_AC @map("Non-AC")
+}
+
+enum enum_buses_layout {
+  Seater
+  Sleeper
+  Semi_Sleeper @map("Semi-Sleeper")
+}
+
+enum enum_movies_status {
+  Showing
+  Upcoming
+}
+
+enum enum_staff_role {
+  Driver
+  Conductor
+  Counter_Staff @map("Counter Staff")
+}
+
+enum enum_users_role {
+  user
+  org
+}

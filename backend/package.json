@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "nodemon src/index.js || (say 'this son of a bitch crashed again' && exit 1)",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "NODE_OPTIONS=--experimental-vm-modules NODE_ENV=test jest --detectOpenHandles"
   },
   "repository": {
     "type": "git",
@@ -20,18 +20,33 @@
   },
   "homepage": "https://github.com/beebek1/CineChips-backend#readme",
   "dependencies": {
+    "@prisma/adapter-pg": "^7.5.0",
+    "@prisma/client": "^7.5.0",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.5",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "jest": "^30.2.0",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.0.2",
     "node-cron": "^4.2.1",
     "nodemailer": "^7.0.12",
     "nodemon": "^3.1.11",
-    "pg": "^8.16.3",
+    "pg": "^8.20.0",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.7",
-    "stripe": "^20.4.0"
+    "stripe": "^20.4.0",
+    "supertest": "^7.2.2",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/node": "^25.5.0",
+    "@types/pg": "^8.11.11",
+    "prisma": "^7.5.0",
+    "typescript": "^5.9.3"
+  },
+  "overrides": {
+    "@types/pg": "^8.11.11"
   }
 }

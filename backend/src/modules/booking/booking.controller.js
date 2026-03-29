@@ -3,17 +3,7 @@ import { Booking, ShowTime, Movie, SeatModel } from "../associations.js"; // Adj
 // ── CREATE NEW BOOKING ──────────────────────────────────────────────────────
 export const addBooking = async (req, res) => {
   try {
-    const {
-      movie_name,
-      hall_name,
-      show_time,
-      show_date,
-      booked_seats,
-      total_price,
-      showtime_id,
-    } = req.body;
-
-    // const { userId } = req.user.id;
+    const { movie_name, hall_name, show_time, show_date, booked_seats, total_price, showtime_id,} = req.body;
 
     const generatedId = "CHIP-" + Date.now().toString().slice(-6)
 
@@ -26,7 +16,6 @@ export const addBooking = async (req, res) => {
       });
     }
 
-    // 2. Create the record
     const newBooking = await Booking.create({
       user_id: 1,
       showtime_id,
@@ -35,9 +24,9 @@ export const addBooking = async (req, res) => {
       hall_name,
       show_time,
       show_date,
-      booked_seats, // Expecting a string like "A1, A2"
+      booked_seats, 
       total_price,
-      status: "unchecked", // Default starting status
+      status: "unchecked",
     });
 
     return res.status(201).json({

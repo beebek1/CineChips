@@ -21,4 +21,15 @@ const sendEmail = async (to, subject, html) => {
   });
 };
 
-export default sendEmail;
+const emailSender = async(html, subject, email) => {
+
+    console.log(email + subject )
+
+    await sendEmail(
+        email,
+        subject,
+        html
+    )
+}
+
+export default emailSender;

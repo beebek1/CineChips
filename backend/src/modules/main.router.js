@@ -5,6 +5,7 @@ import cinemaRoute from "./cinema/cinema.route.js";
 import movieRoute from "./movie/movie.route.js";
 import bookingRoute from "./booking/booking.route.js";
 import createPaymentIntent from "../utils/stripe.js";
+import verifyEmail from "../utils/verifyEmail.js";
 
 const router = Router();
 
@@ -13,5 +14,6 @@ router.use("/cinema", cinemaRoute);
 router.use("/movie", movieRoute);
 router.use("/booking", bookingRoute);
 router.post("/payment", createPaymentIntent);
+router.get("/verify-email", verifyEmail);
 
 export default router;

@@ -1,4 +1,4 @@
-import {User} from "../modules/associations.js"; // Note the .js extension
+import {User} from "../modules/associations.js";
 
 const verifyEmail = async (req, res) => {
   try {
