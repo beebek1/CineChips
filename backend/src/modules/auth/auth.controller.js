@@ -1,6 +1,6 @@
 import {User} from "../associations.js";
-import emailSender from "../../utils/sendEmail.js";
-import registrationEmailTemplate from "../../utils/emailTemplates/register.js";
+import emailSender from "../../utils/emailUtils/sendEmail.js";
+import registrationEmailTemplate from "../../utils/emailUtils/register.js";
 
 import bcrypt from "bcrypt";
 import crypto from "crypto";
