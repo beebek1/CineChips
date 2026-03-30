@@ -39,6 +39,14 @@ export const authUpdateUserSchema = z.object({
     })
 })
 
+export const deleteBookingSchema = z.object({
+  params: z.object({
+    bookingID: z.string(), // matches your Prisma string ID
+  }),
+});
+
+
+
 export type RegisterInput = z.infer<typeof authRegisterSchema > ["body"];
 export type LoginInput = z.infer<typeof authLoginSchema > ["body"];
 export type UpdateInput = z.infer<typeof authUpdateUserSchema > ["body"];

@@ -11,6 +11,7 @@ export const generateSeatsForHall = async (
   hall_id,
   total_rows,
   total_columns,
+  tx
 ) => {
   const seats = [];
 

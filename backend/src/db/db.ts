@@ -10,6 +10,6 @@ const pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 
 // 3. Pass the adapter to the Prisma Client
-const prisma = new PrismaClient({ adapter });
+const db = new PrismaClient({ adapter });
 
-export default prisma;
+export default db;
