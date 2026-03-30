@@ -14,8 +14,8 @@ model CinemaHalls {
   basePrice     Int
   vipPrice      Int
   location      String      @db.VarChar(255)
-  createdAt     DateTime    @db.Timestamptz(6)
-  updatedAt     DateTime    @db.Timestamptz(6)
+  createdAt     DateTime    @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime    @updatedAt @db.Timestamptz(6)
   Seats         Seats[]
   showtimes     showtimes[]
 }
@@ -27,8 +27,8 @@ model MovieShowTime {
   date      DateTime @db.Timestamptz(6)
   startTime DateTime @db.Time(6)
   endTime   DateTime @db.Time(6)
-  createdAt DateTime @db.Timestamptz(6)
-  updatedAt DateTime @db.Timestamptz(6)
+  createdAt DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @db.Timestamptz(6)
 }
 
 model Seats {
@@ -37,8 +37,8 @@ model Seats {
   row_label     String                @db.VarChar(255)
   col_number    Int
   seat_type     enum_Seats_seat_type? @default(standard)
-  createdAt     DateTime              @db.Timestamptz(6)
-  updatedAt     DateTime              @db.Timestamptz(6)
+  createdAt     DateTime              @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime              @updatedAt @db.Timestamptz(6)
   hall_id       Int?
   CinemaHalls   CinemaHalls?          @relation(fields: [hall_id], references: [hall_id], onDelete: Cascade)
   ShowtimeSeats ShowtimeSeats[]
@@ -48,8 +48,8 @@ model ShowtimeSeats {
   showtime_seat_id Int                        @id @default(autoincrement())
   status           enum_ShowtimeSeats_status? @default(available)
   booked_by        Int?
-  createdAt        DateTime                   @db.Timestamptz(6)
-  updatedAt        DateTime                   @db.Timestamptz(6)
+  createdAt        DateTime                   @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime                   @updatedAt @db.Timestamptz(6)
   showtime_id      Int?
   seat_id          Int?
   users            users?                     @relation(fields: [booked_by], references: [user_id])
@@ -68,8 +68,8 @@ model bookings {
   booked_seats String
   total_price  Float
   status       enum_bookings_status @default(unchecked)
-  createdAt    DateTime             @db.Timestamptz(6)
-  updatedAt    DateTime             @db.Timestamptz(6)
+  createdAt    DateTime             @default(now()) @db.Timestamptz(6)
+  updatedAt    DateTime             @updatedAt @db.Timestamptz(6)
   showtime_id  Int?
   user_id      Int?
   showtimes    showtimes?           @relation(fields: [showtime_id], references: [showtime_id], onDelete: Cascade)
@@ -87,8 +87,8 @@ model movies {
   status      enum_movies_status @default(Showing)
   releaseDate DateTime           @db.Timestamptz(6)
   featured    Boolean?           @default(false)
-  createdAt   DateTime           @db.Timestamptz(6)
-  updatedAt   DateTime           @db.Timestamptz(6)
+  createdAt   DateTime           @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime           @updatedAt @db.Timestamptz(6)
   showtimes   showtimes[]
 }
 
@@ -98,8 +98,8 @@ model showtimes {
   show_date     DateTime        @db.Timestamptz(6)
   show_time     DateTime        @db.Time(6)
   language      String          @db.VarChar(255)
-  createdAt     DateTime        @db.Timestamptz(6)
-  updatedAt     DateTime        @db.Timestamptz(6)
+  createdAt     DateTime        @default(now()) @db.Timestamptz(6)
+  updatedAt     DateTime        @updatedAt @db.Timestamptz(6)
   movie_id      Int?
   hall_id       Int?
   ShowtimeSeats ShowtimeSeats[]
@@ -117,8 +117,8 @@ model users {
   isVerified               Boolean?         @default(false)
   verificationToken        String?          @db.VarChar(255)
   verificationTokenExpires DateTime?        @db.Timestamptz(6)
-  createdAt                DateTime?         @default(now())             @db.Timestamptz(6)
-  updatedAt                DateTime?         @updatedAt                  @db.Timestamptz(6)
+  createdAt                DateTime?        @default(now()) @db.Timestamptz(6)
+  updatedAt                DateTime?        @updatedAt @db.Timestamptz(6)
   ShowtimeSeats            ShowtimeSeats[]
   bookings                 bookings[]
 }
