@@ -29,8 +29,19 @@ export const authLoginSchema = z.object({
     }),
 });
 
+export const authUpdateUserSchema = z.object({
+    body: z.object({
+        email: z.email({message: "invalid email format"}),
+        username: z.string()
+            .min(3, "username is too short")
+            .max(20, "username is too long")
+            .regex(/^[a-zA-Z0-9_]+$/, "username can only cointain letters, numbers and \"_\" "),
+    })
+})
+
 export type RegisterInput = z.infer<typeof authRegisterSchema > ["body"];
 export type LoginInput = z.infer<typeof authLoginSchema > ["body"];
+export type UpdateInput = z.infer<typeof authUpdateUserSchema > ["body"];
 
 
 
