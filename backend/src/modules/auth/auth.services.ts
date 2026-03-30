@@ -34,12 +34,15 @@ export const register = async(data: RegisterInput) => {
             verificationTokenExpires
         },
         select: {
+            user_id: true,
             username: true,
             email: true,
-        }
+            role: true, 
+            isVerified: true
+        },
     })
 
-    const verifyLink = `http://localhost:3000/api/verify-email?token=${verificationToken}`;
+    const verifyLink = `${process.env.VERIFY_LINK}?token=${verificationToken}`;
     await emailSender(registrationEmailTemplate(data.username, verifyLink), "verify your email", data.email)
 
     return createdUser;
@@ -69,7 +72,7 @@ export const login = async(data:LoginInput) =>{
     return token;
 }
 
-export const updateUser = async(userID: number, updateData: UpdateInput) =>{
+export const updatedUser = async(userID: number, updateData: UpdateInput) =>{
     const user = await db.users.findUnique({
         where:{ user_id: userID }
     })
@@ -81,9 +84,12 @@ export const updateUser = async(userID: number, updateData: UpdateInput) =>{
         where:{user_id: userID},
         data: updateData,
         select: {
+            user_id: true,
             username: true,
             email: true,
-        }
+            role: true, 
+            isVerified: true
+        },
     })
     return updateUser;
 }

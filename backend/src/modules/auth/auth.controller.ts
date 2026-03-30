@@ -2,9 +2,10 @@ import type { Request, Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import * as userService from "./auth.services.js";
 import { StatusCodes } from "http-status-codes";
+import type { AuthRequest } from "../../middlewares/auth.middleware.js";
 
-export const getUserById = asyncHandler(async(req: Request, res: Response) =>{
-    const{ userID } = req.params;
+export const getUserById = asyncHandler(async(req: AuthRequest, res: Response) =>{
+    const userID = req.user?.id;
 
     const user = await userService.fetchUserByID(Number(userID));
 
@@ -27,11 +28,11 @@ export const registerUser = asyncHandler(async(req:Request, res: Response)=>{
     })
 })
 
-export const updateUser = asyncHandler(async(req:Request, res: Response)=>{
-    const{ userID } = req.params;
+export const updatedUser = asyncHandler(async(req:AuthRequest, res: Response)=>{
+    const userID = req.user?.id;
     const{ updateData } = req.body;
 
-    const user = await userService.updateUser(Number(userID), updateData);
+    const user = await userService.updatedUser(Number(userID), updateData);
 
     return res.status(StatusCodes.OK).json({
         success: true,
