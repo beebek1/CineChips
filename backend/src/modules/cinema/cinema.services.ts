@@ -60,6 +60,30 @@ export const updateHallWithSeats = async(hallID: number, data: HallInput) =>{
     })
 }
 
+export const deleteHallWithSeats = async(hallID: number) =>{
+    return await db.$transaction(async(tx) =>{
+        const hall = await tx.cinemaHalls.findUnique({
+            where: { hall_id: hallID }
+        });
+        if (!hall) {
+            throw new ApiError(StatusCodes.NOT_FOUND, "Cinema Hall not found");
+        }
+        await tx.cinemaHalls.delete({
+            where: { hall_id: hallID }
+        });
+
+        return true
+    });
+}
+
+export const getHallWithSeats = async() =>{
+    const halls = db.cinemaHalls.findMany({
+        orderBy:{
+            createdAt: `desc`
+        },
+    });
+    return halls;
+}
 
 
 

@@ -54,15 +54,15 @@ export const login = async(data:LoginInput) =>{
     });
 
     if(!user){
-        throw new ApiError(StatusCodes.NOT_FOUND, "user with this email doesn't exists")
+        throw new ApiError(StatusCodes.NOT_FOUND, "User with this email doesn't exists")
     }
     if(!user.isVerified){
-        throw new ApiError(StatusCodes.FORBIDDEN, "user not verified")
+        throw new ApiError(StatusCodes.FORBIDDEN, "User not verified")
     }
     const isPasswordCorrect = await bcrypt.compare(data.password, user.password);
 
     if(!isPasswordCorrect){
-        throw new ApiError(StatusCodes.BAD_REQUEST, "email or password didn't match")
+        throw new ApiError(StatusCodes.BAD_REQUEST, "Email or password didn't match")
     }
 
     const payload = { id: user.user_id, role: user.role}
