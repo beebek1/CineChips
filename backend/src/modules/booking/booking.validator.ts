@@ -14,6 +14,12 @@ export const addBookingSchema = z.object({
     }),
 });
 
+export const deleteBookingSchema = z.object({
+  params: z.object({
+    bookingID: z.string(), // matches your Prisma string ID
+  }),
+});
 
 
 export type addBookingInput = z.infer<typeof addBookingSchema> ["body"];
+export type deleteBookingInput = z.infer<typeof deleteBookingSchema> ["params"];

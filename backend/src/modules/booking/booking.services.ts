@@ -42,7 +42,7 @@ export const deleteBooking = async( bookingID: string) =>{
     return booking;
 }
 
-export const getBookingByUser = async(userID: number) =>{
+export const getBookingsByUser = async(userID: number) =>{
     const bookings = await db.bookings.findMany({
         where:{
             user_id: userID,

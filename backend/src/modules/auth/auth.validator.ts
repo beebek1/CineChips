@@ -4,17 +4,17 @@ export const authRegisterSchema = z.object({
     body: z.object({
 
         username: z.string()
-            .min(3, "username is too short")
-            .max(20, "username is too long")
-            .regex(/^[a-zA-Z0-9_]+$/, "username can only cointain letters, numbers and \"_\" "),
+            .min(3, "Username is too short")
+            .max(20, "Username is too long")
+            .regex(/^[a-zA-Z0-9_]+$/, "Username can only cointain letters, numbers and \"_\" "),
 
         email: z.email({message: "invalid email format"}),
 
         role : z.enum(["user", "org"]),
 
         password: z.string()
-            .min(8, "password too short")
-            .max(30, "password too long")
+            .min(8, "Password too short")
+            .max(30, "Password too long")
     }),
 });
 
