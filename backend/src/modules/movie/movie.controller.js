@@ -87,7 +87,6 @@ export const updateMovie = async (req, res) => {
   }
 };
 
-
 export const getAllMovie = async (req, res) => {
   try {
     const movies = await Movie.findAll({
