@@ -10,7 +10,7 @@ export const addHall = asyncHandler(async(req:AuthRequest, res: Response) =>{
     return res.status(StatusCodes.CREATED).json({
     success: true,
     message: "Cinema Hall and seats created successfully",
-    hall: newHall,
+    data: newHall,
   });
 })
 
@@ -21,7 +21,7 @@ export const updateHall = asyncHandler(async(req:AuthRequest, res: Response) =>{
     return res.status(StatusCodes.CREATED).json({
     success: true,
     message: "Cinema Hall updated successfully",
-    hall: updatedHall,
+    data: updatedHall,
   });
 })
 
@@ -32,7 +32,7 @@ export const deleteHall = asyncHandler(async(req:AuthRequest, res: Response) =>{
     return res.status(StatusCodes.CREATED).json({
     success: true,
     message: "Cinema Hall deleted successfully",
-    hall: null,
+    data: null,
   });
 })
 
@@ -43,7 +43,7 @@ export const getAllHalls = asyncHandler(async(req:AuthRequest, res: Response) =>
     return res.status(StatusCodes.CREATED).json({
     success: true,
     message: "Halls fetched successfully",
-    hall: halls,
+    data: halls,
   });
 })
 

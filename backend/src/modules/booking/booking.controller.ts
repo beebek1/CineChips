@@ -33,4 +33,9 @@ export const getBookingsByUser = asyncHandler(async(req: AuthRequest, res: Respo
     const userID = req.user?.id;
 
     const bookings = await bookingService.getBookingsByUser(Number(userID))
+    return res.status(StatusCodes.OK).json({
+        success: true,
+        message: "Booking fetched successfull",
+        data: bookings,
+    });
 })

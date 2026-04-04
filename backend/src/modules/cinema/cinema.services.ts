@@ -3,9 +3,8 @@ import db from "../../db/db.js";
 import { ApiError } from "../../utils/apiError.js";
 import type { HallInput } from "./cinema.validator.js";
 import {
-  generateSeatsForHall,
-  generateShowtimeSeats,
-} from "./seat.controller.js";
+  generateSeatsForHall
+} from "../seat/seat.services.js";
 
 export const createHallWithSeats = async(data: HallInput) =>{
     return await db.$transaction(async(tx) =>{          //transaction client for this transaction
