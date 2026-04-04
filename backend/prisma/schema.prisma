@@ -140,32 +140,9 @@ enum enum_bookings_status {
   checked
 }
 
-enum enum_buses_class {
-  Luxury
-  Semi_Luxury @map("Semi-Luxury")
-  Standard
-}
-
-enum enum_buses_comfort {
-  AC
-  Non_AC @map("Non-AC")
-}
-
-enum enum_buses_layout {
-  Seater
-  Sleeper
-  Semi_Sleeper @map("Semi-Sleeper")
-}
-
 enum enum_movies_status {
   Showing
   Upcoming
-}
-
-enum enum_staff_role {
-  Driver
-  Conductor
-  Counter_Staff @map("Counter Staff")
 }
 
 enum enum_users_role {

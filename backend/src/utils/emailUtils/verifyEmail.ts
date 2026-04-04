@@ -1,5 +1,5 @@
 import type { Request, Response } from "express";
-import db from "../../db/db.js";
+import db from "../../config/db.js";
 
 const verifyEmail = async (req: Request, res: Response): Promise<Response> => {
   try {
@@ -12,8 +12,8 @@ const verifyEmail = async (req: Request, res: Response): Promise<Response> => {
     }
 
     // 1. Find the user by token
-    const user = await db.users.findFirst({ 
-      where: { verificationToken: token as string } 
+    const user = await db.users.findFirst({
+      where: { verificationToken: token as string },
     });
 
     if (!user) {
@@ -23,7 +23,10 @@ const verifyEmail = async (req: Request, res: Response): Promise<Response> => {
     }
 
     // 2. Check token expiration
-    if (user.verificationTokenExpires && user.verificationTokenExpires < new Date()) {
+    if (
+      user.verificationTokenExpires &&
+      user.verificationTokenExpires < new Date()
+    ) {
       return res.status(400).json({
         message: "token expired",
       });
@@ -43,7 +46,6 @@ const verifyEmail = async (req: Request, res: Response): Promise<Response> => {
     return res.status(200).json({
       message: "woah! email verified successfully",
     });
-
   } catch (error: any) {
     return res.status(500).json({
       message: "server side error",

@@ -19,6 +19,3 @@ router.delete("/showtimes/:id", authenticate, authorize("org"), deleteShowtime);
 
 export default router;
 
-// router.post("/showtimes", addShowTime);
-// router.get("/get-showtime", getShowTimes);
-// router.delete("/showtime/delete/:id", deleteShowTime);

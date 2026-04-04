@@ -1,5 +1,5 @@
 import { StatusCodes } from "http-status-codes";
-import db from "../../db/db.js";
+import db from "../../config/db.js";
 import { ApiError } from "../../utils/apiError.js";
 import { type ShowtimeInput } from "./showtime.validator.js";
 import { generateShowtimeSeats } from "../seat/seat.services.js";
@@ -38,14 +38,15 @@ export const getShowtimes = async () => {
 
 export const getShowtimeByMovieId = async (movieID: number) => {
   const showtimes = await db.showtimes.findMany({
-    where: { movie_id: movieID},
+    where: { movie_id: movieID },
     include: {
       movies: true,
       CinemaHalls: true,
     },
     orderBy: [{ show_date: "asc" }, { show_time: "asc" }],
   });
-  if(!showtimes || showtimes.length === 0) throw new ApiError(StatusCodes.NOT_FOUND, " No showtime Found ")
+  if (!showtimes || showtimes.length === 0)
+    throw new ApiError(StatusCodes.NOT_FOUND, " No showtime Found ");
   return showtimes;
 };
 
@@ -57,5 +58,3 @@ export const deleteShowtime = async (showtimeID: number) => {
     throw new ApiError(StatusCodes.NOT_FOUND, "No showtime Found");
   return deletedShowtime;
 };
-
-
