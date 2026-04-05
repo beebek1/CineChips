@@ -113,7 +113,7 @@ model users {
   username                 String           @db.VarChar(255)
   email                    String?          @unique @db.VarChar(255)
   password                 String           @db.VarChar(255)
-  role                     enum_users_role? @default(user)
+  role                     enum_users_role  @default(user)
   isVerified               Boolean?         @default(false)
   verificationToken        String?          @db.VarChar(255)
   verificationTokenExpires DateTime?        @db.Timestamptz(6)

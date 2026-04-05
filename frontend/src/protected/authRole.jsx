@@ -1,4 +1,5 @@
-import { jwtDecode } from 'jwt-decode';
+import {jwtDecode} from 'jwt-decode';
+import { getUser } from '../services/api';
 
 const getToken = () => localStorage.getItem('jwtToken');
 
@@ -6,12 +7,11 @@ const isExpired = (token) => {
     const decoded = jwtDecode(token);
 
     if(!decoded.exp) return true
-    if(decoded.exp*1000 > Date.now()) return true
-
+    if(decoded.exp*1000 < Date.now()) return true
     return false
 };
 
-const getUserRole = () => {
+const getUserRole = async() => {
     const token = getToken();
 
     if(!token || !isExpired){
@@ -20,13 +20,14 @@ const getUserRole = () => {
     }
     try{
         const decoded = jwtDecode(token);
-        return decoded.role;
+        const response = await getUser(decoded.id);
+        return role = response?.data?.role;
+
     }catch(e){
         localStorage.removeItem('jwtToken');
         console.log(e);
         return null
     }
-
 }
 
 export default getUserRole;

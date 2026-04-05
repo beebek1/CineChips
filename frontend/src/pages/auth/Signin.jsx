@@ -29,7 +29,7 @@ export default function Signin() {
         }
       );
 
-      const token = response.data.token;
+      const token = response.data.data;
       localStorage.setItem("jwtToken", token);
       
       // Smooth transition to dashboard
@@ -52,7 +52,6 @@ export default function Signin() {
 
   return (
     <div className="flex min-h-screen bg-[#080808] overflow-hidden">
-      <Toaster position="top-center" reverseOrder={false} />
 
       {/* Left side - Visual Poster */}
       <div className="hidden lg:flex lg:w-1/2 h-screen relative group">

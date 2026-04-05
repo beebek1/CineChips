@@ -1,46 +1,44 @@
 import cron from "node-cron";
-import { ShowTime } from "../modules/associations.js";
-import { Op } from "sequelize";
-import { internalDeleteShowtime } from "../modules/cinema/cinema.controller.js";
+import { PrismaClient } from "@prisma/client";
+import { deleteShowtime } from "../modules/showtime/showtime.services.js";
+import db from "../config/db.js";
 
-// Run every 30 minutes
-cron.schedule("*/10 * * * * ", async () => {
-  console.log("Checking for expired showtimes...");
+export const startShowtimeCleanupCron = (): void => {
+  cron.schedule("*/10 * * * *", async () => {
+    console.log("Checking for expired showtimes...");
 
-  const now = new Date();
-  const currentDate = now.toISOString().split("T")[0];
-  const currentTime = now.toTimeString().split(" ")[0];
+    try {
+      const now = new Date();
 
-  try {
-    // Find showtimes that have already passed
-    const expiredShows = await ShowTime.findAll({
-      where: {
-        [Op.or]: [
-          { show_date: { [Op.lt]: currentDate } },
-          {
-            [Op.and]: [
-              { show_date: currentDate },
-              { show_time: { [Op.lt]: currentTime } },
-            ],
+      const expiredShowtimes = await db.showtimes.findMany({
+        where: {
+          show_date: {
+            lt: now,
           },
-        ],
-      },
-    });
+        },
+        select: {
+          showtime_id: true,
+        },
+      });
 
-    if (expiredShows.length > 0) {
+      if (expiredShowtimes.length === 0) {
+        console.log("No expired showtimes found.");
+        return;
+      }
+
       console.log(
-        `Found ${expiredShows.length} expired showtimes. Deleting...`,
+        `Found ${expiredShowtimes.length} expired showtimes. Deleting...`,
       );
 
       await Promise.all(
-        expiredShows.map((show) => internalDeleteShowtime(show.id)),
+        expiredShowtimes.map((show) =>
+          deleteShowtime(show.showtime_id),
+        ),
       );
 
       console.log("Cleanup complete.");
-    } else {
-      console.log("No expired showtimes found.");
+    } catch (error: unknown) {
+      console.error("Error during showtime cleanup cron:", error);
     }
-  } catch (error) {
-    console.error("Error during showtime cleanup cron:", error);
-  }
-});
+  });
+};

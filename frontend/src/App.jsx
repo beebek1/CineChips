@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Outlet, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 
-
 // Layouts
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -26,6 +25,7 @@ import AdminHome from './pages/admin/Home';
 import AdminMovie from './pages/admin/Movies';
 import AdminHall from './pages/admin/Hall';
 import AdminSchedule from './pages/admin/Schedules';
+import { useEffect, useState } from 'react';
 
 // --- 1. USER LAYOUT ---
 const UserLayout = () => {
@@ -54,8 +54,21 @@ const AdminLayout = () => {
     </div>
   );
 };
-function AppWrapper() {
-  const role = getUserRole();
+
+function AppWrapper () {
+  const [role, setRole] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchRole = async () => {
+      const r = await getUserRole();
+      setRole(r);
+      setLoading(false);
+    };
+    fetchRole();
+  }, []);
+
+  if (loading) return <div>Loading...</div>;
 
   return (
     <>
@@ -63,6 +76,7 @@ function AppWrapper() {
       <Routes>
         {!role && (
           <>
+          <Route path="*" element={<SignIn />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
           <Route path="/reset-password" element={<Forgetpassword />} />

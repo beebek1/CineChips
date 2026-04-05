@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { ApiError } from "../apiError.js";
 
 interface EmailOptions {
   to: string;
@@ -6,7 +7,7 @@ interface EmailOptions {
   html: string;
 }
 
-const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<void> => {
+const sendEmail = async ({ to, subject, html }: EmailOptions) => {
   const transporter = nodemailer.createTransport({
     service: "gmail",
     auth: {
@@ -22,24 +23,22 @@ const sendEmail = async ({ to, subject, html }: EmailOptions): Promise<void> => 
       subject,
       html,
     });
-    console.log(`Email sent successfully to ${to}`);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error sending email:", error);
+    throw new ApiError(500, "Failed to send email");
   }
 };
 
 export const emailSender = async (
   email: string,
   subject: string,
-  html: string
-): Promise<void> => {
-  console.log(`Preparing email for: ${email} | Subject: ${subject}`);
+  html: string,
+) => {
+  if (!email || !subject || !html) {
+    throw new ApiError(400, "Email, subject and html content are required");
+  }
 
-  await sendEmail({
-    to: email,
-    subject,
-    html,
-  });
+  await sendEmail({ to: email, subject, html });
 };
 
 export default emailSender;
