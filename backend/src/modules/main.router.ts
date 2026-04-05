@@ -1,14 +1,14 @@
 import { Router } from "express";
 
-import authRoute from "./modules/auth/auth.route.js";
-import cinemaRoute from "./modules/cinema/cinema.route.js";
-import movieRoute from "./modules/movie/movie.route.js";
-import bookingRoute from "./modules/booking/booking.route.js";
-import seatRoute from "./modules/seat/seat.route.js";
-import showtimeRoute from "./modules/showtime/showtime.route.js";
+import authRoute from "./auth/auth.route.js";
+import cinemaRoute from "./cinema/cinema.route.js";
+import movieRoute from "./movie/movie.route.js";
+import bookingRoute from "./booking/booking.route.js";
+import seatRoute from "./seat/seat.route.js";
+import showtimeRoute from "./showtime/showtime.route.js";
 
-import createPaymentIntent from "./services/payment.service.js";
-import verifyEmail from "./utils/emailUtils/verifyEmail.js";
+import createPaymentIntent from "../services/payment.service.js";
+import verifyEmail from "../utils/emailUtils/verifyEmail.js";
 
 const router = Router();
 

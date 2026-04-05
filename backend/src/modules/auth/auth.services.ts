@@ -35,7 +35,7 @@ export const register = async (data: RegisterInput) => {
       username: data.username,
       email: data.email,
       password: hashedPassword,
-      role: data.role as enum_users_role,
+      role: (data.role ?? "user") as enum_users_role,
       verificationToken,
       verificationTokenExpires,
     },
@@ -50,9 +50,9 @@ export const register = async (data: RegisterInput) => {
 
   const verifyLink = `${process.env.VERIFY_LINK}?token=${verificationToken}`;
   await emailSender(
-    registrationEmailTemplate(data.username, verifyLink),
-    "verify your email",
     data.email,
+    "verify your email",
+    registrationEmailTemplate(data.username, verifyLink)
   );
 
   return createdUser;
@@ -81,7 +81,7 @@ export const login = async (data: LoginInput) => {
     );
   }
 
-  const payload = { id: user.user_id, role: user.role };
+  const payload = { id: user.user_id};
   const options: SignOptions = {
     expiresIn: (process.env.JWT_EXPIRES_IN as string) || ("7d" as any),
   };

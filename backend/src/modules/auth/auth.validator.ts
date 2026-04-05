@@ -6,7 +6,7 @@ export const authRegisterSchema = z.object({
         username: z.string()
             .min(3, "Username is too short")
             .max(20, "Username is too long")
-            .regex(/^[a-zA-Z0-9_]+$/, "Username can only cointain letters, numbers and \"_\" "),
+            .regex(/^[a-zA-Z0-9_ ]+$/, 'Username can contain letters, numbers, spaces and "_"'),
 
         email: z.email({message: "invalid email format"}),
 

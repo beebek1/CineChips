@@ -1,9 +1,10 @@
-import type { Request, Response } from "express";
+import type { Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
 import * as showtimeService from "./showtime.services.js";
 import { StatusCodes } from "http-status-codes";
+import type { AuthRequest } from "../../middlewares/auth.middleware.js";
 
-export const addShowtime = asyncHandler(async (req: Request, res: Response) => {
+export const addShowtime = asyncHandler(async (req: AuthRequest, res: Response) => {
   const newShowtime = await showtimeService.addShowtime(req.body);
 
   return res.status(StatusCodes.CREATED).json({
@@ -13,7 +14,7 @@ export const addShowtime = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-export const getShowtime = asyncHandler(async (req: Request, res: Response) => {
+export const getShowtime = asyncHandler(async (req: AuthRequest, res: Response) => {
   const fetchedShowtime = await showtimeService.getShowtimes();
 
   return res.status(StatusCodes.OK).json({
@@ -23,7 +24,7 @@ export const getShowtime = asyncHandler(async (req: Request, res: Response) => {
   });
 });
 
-export const getShowtimeByMovieId = asyncHandler(async (req: Request, res: Response) => {
+export const getShowtimeByMovieId = asyncHandler(async (req: AuthRequest, res: Response) => {
   const fetchedShowtime = await showtimeService.getShowtimeByMovieId(Number(req.params));
 
   return res.status(StatusCodes.OK).json({
@@ -33,7 +34,7 @@ export const getShowtimeByMovieId = asyncHandler(async (req: Request, res: Respo
   });
 });
 
-export const deleteShowtime = asyncHandler(async (req: Request, res: Response) => {
+export const deleteShowtime = asyncHandler(async (req: AuthRequest, res: Response) => {
   const deletedShowtime = await showtimeService.deleteShowtime(
     Number(req.params),
   );

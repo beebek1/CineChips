@@ -1,6 +1,6 @@
 import { Router } from "express";
-import {authenticate} from "../../middlewares/auth.middleware.js"
-import {authorize} from "../../middlewares/role.middleware.js"
+import {verifyAccessToken} from "../../middlewares/auth.middleware.js"
+import {requireRole} from "../../middlewares/role.middleware.js"
 import {
   getSeatsByShowtime,
   bookSeats,
@@ -9,9 +9,9 @@ import {
 
 const router = Router();
 
-router.get("/seats/showtime/:showtimeId",authenticate, authorize("user"), getSeatsByShowtime);
-router.patch("/seats/book", authenticate, authorize("user"), bookSeats);
-router.patch("/seats/release", authenticate, authorize("user"), releaseSeats);
+router.get("/seats/showtime/:showtimeId",verifyAccessToken, requireRole("user"), getSeatsByShowtime);
+router.patch("/seats/book", verifyAccessToken, requireRole("user"), bookSeats);
+router.patch("/seats/release", verifyAccessToken, requireRole("user"), releaseSeats);
 
 export default router;
 
