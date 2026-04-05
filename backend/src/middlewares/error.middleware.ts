@@ -19,5 +19,6 @@ export const errorHandler = (
         success: false,
         message,
         errors,
+        stack: err.stack 
     })
 }
