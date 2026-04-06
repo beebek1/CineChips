@@ -23,3 +23,4 @@ Foreign key hall_id on seats enforced at DB level
 Documentation update - trace part 1
 Documentation update - trace part 2
 Documentation update - trace part 3
+Documentation update - trace part 4
