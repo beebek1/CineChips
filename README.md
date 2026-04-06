@@ -20,3 +20,4 @@ Seats auto-created when a hall is added
 ShowtimeSeats auto-created when a showtime is scheduled
 Cascade delete: deleting a hall removes its seats, deleting a showtime removes its seat records
 Foreign key hall_id on seats enforced at DB level
+Documentation update - trace part 1
