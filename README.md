@@ -22,3 +22,4 @@ Cascade delete: deleting a hall removes its seats, deleting a showtime removes i
 Foreign key hall_id on seats enforced at DB level
 Documentation update - trace part 1
 Documentation update - trace part 2
+Documentation update - trace part 3
