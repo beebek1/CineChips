@@ -81,7 +81,7 @@ export const login = async (data: LoginInput) => {
     );
   }
 
-  const payload = { id: user.user_id};
+  const payload = { id: user.user_id, role: user.role};
   const options: SignOptions = {
     expiresIn: (process.env.JWT_EXPIRES_IN as string) || ("7d" as any),
   };

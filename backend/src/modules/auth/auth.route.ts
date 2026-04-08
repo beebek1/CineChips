@@ -14,7 +14,7 @@ import {
 const router = Router();
 
 router.post("/register", validator(authRegisterSchema), registerUser);
-router.get("/getUserByid/:id", verifyAccessToken, getUserById);
+router.get("/getUser", verifyAccessToken, getUserById);
 router.get("/verify-email", verifyEmail);
 router.put(
   "/update/:id",
