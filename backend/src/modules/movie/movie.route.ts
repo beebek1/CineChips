@@ -15,10 +15,10 @@ import { movieSchema } from "./movie.validator.js";
 
 const router = Router();
 
-router.post("/addmovie", verifyAccessToken, requireRole("org"), validator(movieSchema), uploadImage, addMovie);
-router.put("/update/:id", verifyAccessToken, requireRole("org"), validator(movieSchema), uploadImage, updateMovie);
-router.get("/getall", verifyAccessToken, requireRole("org, user"), getAllMovies);
-router.get("/get-movie-by-id/:id", verifyAccessToken, requireRole("org, user"), getMovieByID);
-router.delete("/delete/:id", verifyAccessToken, requireRole("org"), deleteMovie);
+router.post("/", verifyAccessToken, requireRole("org"), validator(movieSchema), uploadImage, addMovie);
+router.put("/:id", verifyAccessToken, requireRole("org"), validator(movieSchema), uploadImage, updateMovie);
+router.get("/", verifyAccessToken, getAllMovies);
+router.get("/:id", verifyAccessToken, getMovieByID);
+router.delete("/:id", verifyAccessToken, requireRole("org"), deleteMovie);
 
 export default router;

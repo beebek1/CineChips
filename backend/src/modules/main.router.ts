@@ -15,7 +15,7 @@ const router = Router();
 router.use("/auth", authRoute);
 router.use("/booking", bookingRoute);
 router.use("/cinema", cinemaRoute);
-router.use("/movie", movieRoute);
+router.use("/movies", movieRoute);
 router.use("/seat", seatRoute);
 router.use("/showtime", showtimeRoute);
 
