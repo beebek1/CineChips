@@ -7,17 +7,18 @@ import SeatGrid from "../components/seatBooking/SeatGrid";
 import SeatLegend from "../components/seatBooking/SeatLegend";
 import SeatSummarySidebar from "../components/seatBooking/SeatSummarySidebar";
 import BookingConfirmationModal from "../components/BookingConfirmationModal";
+import ScreenArch from "../components/seatBooking/ScreenArch";
 import { useSeatBooking } from "../hooks/useSeatBooking";
 import type { ActiveBooking } from "../booking.types";
 import { formatLongDate, formatTime } from "../booking.utils";
 
 const SeatBookingPage: React.FC = () => {
   const navigate = useNavigate();
-  const booking = JSON.parse(localStorage.getItem("activeBooking") || "null") as ActiveBooking | null;
+  const booking = JSON.parse(localStorage.getItem("activeBooking") || "null") as ActiveBooking;
 
   const {
-    MAX_SEATS,
     clientSecret,
+    MAX_SEATS,
     rows,
     loading,
     selectedSeats,
@@ -79,6 +80,7 @@ const SeatBookingPage: React.FC = () => {
           </p>
         </div>
 
+        <ScreenArch />
         <SeatGrid rows={rows} onSeatClick={handleSeatClick} />
         <SeatLegend vipPrice={vipPrice} />
       </div>

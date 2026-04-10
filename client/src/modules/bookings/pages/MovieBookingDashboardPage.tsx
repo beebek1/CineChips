@@ -4,6 +4,7 @@ import { MdArrowBack } from "react-icons/md";
 import { FaSpinner } from "react-icons/fa";
 import { useMovieBookingDashboard } from "../hooks/useMovieBookingsDashboard";
 import { formatDateCard, getCoverUrl } from "../booking.utils";
+import ProceedToSeats from "../components/ProceedToSeat";
 import type { MovieLite } from "../booking.types";
 
 const MovieBookingDashboardPage: React.FC = () => {
@@ -84,12 +85,57 @@ const MovieBookingDashboardPage: React.FC = () => {
                 })}
               </div>
             </section>
+
+            {selectedSchedule && selectedSchedule.halls.length > 0 && (
+              <section>
+                <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600">02. Select Hall</h2>
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {selectedSchedule.halls.map((hall, idx) => (
+                    <button key={idx} onClick={() => chooseHall(hall)} className={`cursor-pointer flex-shrink-0 px-6 py-4 rounded-xl transition-all border active:scale-95 ${selectedHall?.hallId === hall.hallId ? "bg-white text-black border-white" : "bg-white/5 border-white/5 text-gray-500 hover:border-white/20"}`}>
+                      <div className="text-xs font-bold uppercase">{hall.name}</div>
+                      <div className="text-[9px] text-gray-500 mt-1">Rs. {hall.price}</div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {selectedHall && selectedHall.showings.length > 0 && (
+              <section>
+                <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600">03. Select Language</h2>
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {selectedHall.showings.map((showing, idx) => (
+                    <button key={idx} onClick={() => chooseShowing(showing)} className={`cursor-pointer flex-shrink-0 px-6 py-4 rounded-xl transition-all border active:scale-95 ${selectedShowing?.language === showing.language ? "bg-white text-black border-white" : "bg-white/5 border-white/5 text-gray-500 hover:border-white/20"}`}>
+                      <div className="text-xs font-bold uppercase">{showing.language}</div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
+
+            {selectedShowing && selectedShowing.slots.length > 0 && (
+              <section>
+                <h2 className="text-sm font-bold uppercase tracking-[0.3em] mb-6 text-gray-600">04. Select Time</h2>
+                <div className="flex gap-4 overflow-x-auto pb-2">
+                  {selectedShowing.slots.map((slot, idx) => (
+                    <button key={idx} onClick={() => setSelectedSlot(slot)} className={`cursor-pointer flex-shrink-0 px-6 py-4 rounded-xl transition-all border active:scale-95 ${selectedSlot?.showtimeId === slot.showtimeId ? "bg-white text-black border-white" : "bg-white/5 border-white/5 text-gray-500 hover:border-white/20"}`}>
+                      <div className="text-xs font-bold uppercase">{slot.time}</div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
           <div className="lg:col-span-4 text-left">
-            <div className="sticky top-24 bg-[#111] rounded-3xl p-8 border border-white/5 shadow-2xl">
-              <button disabled={!isAllSelected} onClick={onProceed} className={`cursor-pointer w-full py-4 rounded-xl text-xs font-bold uppercase tracking-[0.2em] transition-all duration-500 active:scale-95 ${isAllSelected ? "bg-white text-black hover:bg-[#d4af37]" : "bg-white/5 text-gray-700 cursor-not-allowed border border-white/5"}`}>Proceed to Seats</button>
-            </div>
+            <ProceedToSeats 
+              selectedSchedule={selectedSchedule}
+              selectedHall={selectedHall}
+              selectedShowing={selectedShowing}
+              selectedSlot={selectedSlot}
+              isAllSelected={isAllSelected}
+              onProceed={onProceed}
+            />
           </div>
         </div>
       </div>
