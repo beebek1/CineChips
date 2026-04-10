@@ -5,6 +5,12 @@ export type HallModel = {
   total_columns?: number;
 };
 
+export type ShowtimeResponse<T> = {
+  success: boolean,
+  message: string,
+  data: T
+}
+
 export type ShowtimeMovie = {
   title?: string;
   genre?: string;

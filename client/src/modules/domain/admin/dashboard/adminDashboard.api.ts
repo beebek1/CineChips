@@ -1,12 +1,19 @@
 import apiClient from "../../../../shared/services/apiClient";
-import type { Showtime, Hall, Movie } from "./adminDashboard.types";
+import type {
+  Showtime,
+  Hall,
+  Movie,
+  ShowtimeResponse,
+} from "./adminDashboard.types";
 
 export const getShowTimes = () =>
-  apiClient.get<Showtime[]>("api/cinema/get-showtime");
+  apiClient.get<ShowtimeResponse<Showtime[]>>("api/showtime");
 
-export const getAllHalls = () => apiClient.get<Hall[]>("api/cinema/get-all");
+export const getAllHalls = () =>
+  apiClient.get<ShowtimeResponse<Hall[]>>("api/cinema"); 
 
-export const getAllMovie = () => apiClient.get<Movie[]>("api/movie/getall");
+export const getAllMovie = () =>
+  apiClient.get<ShowtimeResponse<Movie[]>>("api/movies");
 
 export const getAdminDashboardDataApi = async () => {
   const [stRes, hRes, mRes] = await Promise.all([
@@ -15,23 +22,13 @@ export const getAdminDashboardDataApi = async () => {
     getAllMovie(),
   ]);
 
-  /**
-   * We cast to 'any' during the data extraction to handle
-   * varying backend response structures (wrapped in .data or .showtimes)
-   */
-  const showtimes =
-    (stRes as any)?.data?.showtimes ??
-    (stRes as any)?.data?.schedules ??
-    (stRes as any)?.data ??
-    [];
-
-  const halls = (hRes as any)?.data?.halls ?? (hRes as any)?.data ?? [];
-
-  const movies = (mRes as any)?.data?.movies ?? (mRes as any)?.data ?? [];
+  const showtimes = stRes.data?.data;
+  const halls = hRes.data?.data;
+  const movies = mRes.data?.data;
 
   return {
-    showtimes: showtimes as Showtime[],
-    halls: halls as Hall[],
-    movies: movies as Movie[],
+    showtimes: Array.isArray(showtimes) ? showtimes : [],
+    halls: Array.isArray(halls) ? halls : [],
+    movies: Array.isArray(movies) ? movies : [],
   };
 };
