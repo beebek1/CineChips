@@ -65,7 +65,7 @@ export const useScheduleAdmin = () => {
   const saveSchedule = async () => {
     setError("");
 
-    if (isPastDateTime(formData.showDate, formData.showTime)) {
+    if (isPastDateTime(formData.show_date, formData.show_time)) {
       setError("Cannot schedule a showtime in the past.");
       return;
     }
@@ -73,10 +73,10 @@ export const useScheduleAdmin = () => {
     const conflict = getConflict(
       schedules,
       movies,
-      formData.hallId,
-      formData.showDate,
-      formData.showTime,
-      formData.movieId,
+      formData.movie_id,
+      formData.hall_id,
+      formData.show_date,
+      formData.show_time,
       editingId,
     );
 
@@ -129,7 +129,7 @@ export const useScheduleAdmin = () => {
     const selected = halls.find((h) => String(h.hall_id) === String(hallId));
     setFormData((prev) => ({
       ...prev,
-      hallId,
+      hall_id: hallId,
       price: String(selected?.basePrice ?? selected?.base_price ?? ""),
     }));
   };

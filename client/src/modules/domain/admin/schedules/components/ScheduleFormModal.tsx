@@ -24,7 +24,7 @@ interface Props {
   onClose: () => void;
   onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   onFormChange: <K extends keyof ScheduleFormData>(key: K, value: ScheduleFormData[K]) => void;
-  onHallChange: (hallId: string) => void;
+  onHallChange: (hall_id: string) => void;
 }
 
 const ScheduleFormModal: React.FC<Props> = ({
@@ -83,13 +83,11 @@ const ScheduleFormModal: React.FC<Props> = ({
                   <select
                     required
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-xs text-white font-bold outline-none focus:border-[#d4af37]/50 transition-colors"
-                    value={formData.movieId}
-                    onChange={(e) => onFormChange("movieId", e.target.value)}
+                    value={formData.movie_id}
+                    onChange={(e) => onFormChange("movie_id", e.target.value)}
                   >
                     <option value="" className="bg-[#111]">Select movie</option>
-                    {movies
-                      .filter((m) => m.status?.toLowerCase() !== "upcoming")
-                      .map((m) => (
+                    {movies?.filter((m) => m.status?.toLowerCase() !== "upcoming")?.map((m) => (
                         <option key={m.movie_id} value={m.movie_id} className="bg-[#111]">
                           {m.title}
                         </option>
@@ -121,7 +119,7 @@ const ScheduleFormModal: React.FC<Props> = ({
                   <select
                     required
                     className="w-full bg-white/5 border border-white/10 rounded-2xl px-5 py-3.5 text-xs text-white font-bold outline-none focus:border-[#d4af37]/50 transition-colors"
-                    value={formData.hallId}
+                    value={formData.hall_id}
                     onChange={(e) => onHallChange(e.target.value)}
                   >
                     <option value="" className="bg-[#111]">Select hall</option>
@@ -156,8 +154,8 @@ const ScheduleFormModal: React.FC<Props> = ({
                     type="date"
                     min={new Date().toISOString().split("T")[0]}
                     className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-bold [color-scheme:dark] outline-none focus:border-[#d4af37]/50 transition-colors"
-                    value={formData.showDate}
-                    onChange={(e) => onFormChange("showDate", e.target.value)}
+                    value={formData.show_date}
+                    onChange={(e) => onFormChange("show_date", e.target.value)}
                   />
                 </div>
 
@@ -169,8 +167,8 @@ const ScheduleFormModal: React.FC<Props> = ({
                     required
                     type="time"
                     className="w-full bg-black border border-white/10 rounded-xl px-4 py-3 text-xs text-white font-bold [color-scheme:dark] outline-none focus:border-[#d4af37]/50 transition-colors"
-                    value={formData.showTime}
-                    onChange={(e) => onFormChange("showTime", e.target.value)}
+                    value={formData.show_time}
+                    onChange={(e) => onFormChange("show_time", e.target.value)}
                   />
                 </div>
               </div>
