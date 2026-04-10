@@ -1,15 +1,8 @@
 import { useNavigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode";
 import toast from "react-hot-toast";
 import { loginApi } from "../auth.api";
 import type { LoginRequest } from "../auth.types";
-
-type LoginTokenPayload = {
-  id?: number | string;
-  role?: "user" | "org" | "admin" | string;
-  exp?: number;
-  iat?: number;
-};
+import getUserInfo from "../../../app/guards/authRole";
 
 export function useLogin() {
   const navigate = useNavigate();
@@ -35,11 +28,10 @@ export function useLogin() {
 
       localStorage.setItem("jwtToken", token);
 
-      const decoded = jwtDecode<LoginTokenPayload>(token);
-      const role = decoded?.role;
+      const info = await getUserInfo()
 
       setTimeout(() => {
-        if (role === "org" || role === "admin") {
+        if (info?.role === "org" || info?.role === "admin") {
           navigate("/admin/dashboard", { replace: true });
           return;
         }

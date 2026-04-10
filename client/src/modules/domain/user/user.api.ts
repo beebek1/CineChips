@@ -3,12 +3,12 @@ import type { Movie, Showtime, Hall, UserAccount, AccountFormData } from "./user
 
 // ================== DASHBOARD ========================
 
-export const getAllMovie = () => apiClient.get<Movie[]>("api/movie/getall");
+export const getAllMovie = () => apiClient.get<Movie[]>("api/movies");
 
 export const getShowTimes = () =>
-  apiClient.get<Showtime[]>("api/cinema/get-showtime");
+  apiClient.get<Showtime[]>("api/showtime");
 
-export const getAllHalls = () => apiClient.get<Hall[]>("api/cinema/get-all");
+export const getAllHalls = () => apiClient.get<Hall[]>("api/cinema");
 
 export const getUserDashboardDataApi = async () => {
   const [mRes, stRes, hRes] = await Promise.all([
@@ -17,15 +17,15 @@ export const getUserDashboardDataApi = async () => {
     getAllHalls(),
   ]);
 
-  const movies = (mRes as any)?.data?.movies ?? (mRes as any)?.data ?? [];
+  const movies = (mRes as any)?.data?.data ?? (mRes as any)?.data ?? [];
 
   const showtimes =
-    (stRes as any)?.data?.showtimes ??
-    (stRes as any)?.data?.schedules ??
+    (stRes as any)?.data?.data ??
+    (stRes as any)?.data?.showtime ??
     (stRes as any)?.data ??
     [];
 
-  const halls = (hRes as any)?.data?.halls ?? (hRes as any)?.data ?? [];
+  const halls = (hRes as any)?.data?.data ?? (hRes as any)?.data ?? [];
 
   return {
     movies: movies as Movie[],
@@ -36,8 +36,7 @@ export const getUserDashboardDataApi = async () => {
 
 // ================== ACCOUNT ========================
 
-export const getUserApi = () =>
-  apiClient.get<UserAccount>(`/api/auth/getUser`);
+export const getUserApi = () => apiClient.get<UserAccount>(`/api/auth/getUser`);
 
 export const updateUserAccountApi = (
   payload: AccountFormData,

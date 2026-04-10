@@ -5,8 +5,9 @@ import type {
   AccountTab,
   UserAccount,
 } from "../user.types";
+import getUserInfo, { clearToken } from "../../../../app/guards/authRole";
 
-const USER_ID = 1;
+const userInfo = await getUserInfo()
 
 const emptyForm: AccountFormData = {
   username: "",
@@ -26,9 +27,9 @@ export const useAccountPage = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await getUserApi(USER_ID);
-        if ((res as any)?.data?.user) {
-          const u = (res as any).data.user as UserAccount;
+        const res = await getUserApi();
+        if ((res as any)?.data?.data) {
+          const u = (res as any).data.data as UserAccount;
           setUser(u);
           setFormData({
             username: u.username || "",
@@ -50,9 +51,9 @@ export const useAccountPage = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await updateUserAccountApi(formData, USER_ID);
-      if ((res as any)?.data?.user) {
-        setUser((res as any).data.user);
+      const res = await updateUserAccountApi(formData, userInfo?.id ?? 1);
+      if ((res as any)?.data?.data) {
+        setUser((res as any).data.data);
       } else {
         setUser((prev) => ({ ...(prev ?? {}), ...formData }));
       }
@@ -75,6 +76,7 @@ export const useAccountPage = () => {
   };
 
   const handleSignOut = () => {
+    clearToken();
     if (window.confirm("Are you sure you want to sign out?")) {
       window.location.href = "/login";
     }
