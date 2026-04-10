@@ -1,13 +1,7 @@
 import { useEffect, useState } from "react";
 import { FaSearch, FaUser } from "react-icons/fa";
 import { Link, useLocation } from "react-router-dom";
-import { getUser } from "../../modules/auth/auth.api";
-
-type NavbarUser = {
-  user_id?: string | number;
-  username?: string;
-  name?: string;
-};
+import getUserInfo, { clearToken } from "../../app/guards/authRole";
 
 const navLinks = [
   { name: "HOME", path: "/" },
@@ -18,7 +12,8 @@ const navLinks = [
 
 const UserNavbar: React.FC = () => {
   const [scrolled, setScrolled] = useState(false);
-  const [user, setUser] = useState<NavbarUser | null>(null);
+  // Using the JwtPayload type from your auth file
+  const [userInfo, setUserInfo] = useState<{ id: number | string; role: string } | null>(null);
   const location = useLocation();
 
   useEffect(() => {
@@ -28,21 +23,24 @@ const UserNavbar: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const res = await getUser("1");
-        if ((res as any)?.data?.user) {
-          setUser((res as any).data.user);
-          return;
-        }
-        setUser(null);
-      } catch {
-        setUser(null);
+    const checkAuth = async () => {
+      // Use your new function to get id and role from the token
+      const info = await getUserInfo();
+      if (info) {
+        setUserInfo({ id: info.id!, role: info.role! });
+      } else {
+        setUserInfo(null);
       }
     };
 
-    fetchUser();
-  }, []);
+    checkAuth();
+  }, [location]);
+
+  const handleLogout = () => {
+    clearToken();
+    setUserInfo(null);
+    window.location.href = "/login";
+  };
 
   return (
     <nav
@@ -50,19 +48,16 @@ const UserNavbar: React.FC = () => {
         scrolled ? "bg-[#080808] border-b border-white/5 py-4" : "bg-transparent py-7"
       }`}
     >
+      {/* Visual background gradients... (same as your original) */}
       {!scrolled && (
         <div className="absolute inset-0 bg-gradient-to-b from-black via-black/90 to-transparent h-40 pointer-events-none -z-10" />
-      )}
-
-      {scrolled && (
-        <div className="absolute bottom-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#d4af37]/40 to-transparent" />
       )}
 
       <div className="max-w-7xl mx-auto px-8">
         <div className="flex justify-between items-center">
           <div className="flex items-center space-x-16">
             <Link to="/" className="flex items-center cursor-pointer select-none group">
-              <h1 className="text-2xl font-light tracking-tighter text-white">
+              <h1 className="text-2xl font-light tracking-tighter text-white uppercase">
                 CINE<span className="font-black text-[#d4af37]">CHIPS</span>
               </h1>
             </Link>
@@ -72,7 +67,7 @@ const UserNavbar: React.FC = () => {
                 <Link
                   key={link.name}
                   to={link.path}
-                  className={`px-4 py-2 text-[10px] font-black tracking-[0.3em] transition-all duration-300 cursor-pointer outline-none ${
+                  className={`px-4 py-2 text-[10px] font-black tracking-[0.3em] transition-all duration-300 cursor-pointer ${
                     location.pathname === link.path
                       ? "text-[#d4af37] drop-shadow-[0_0_8px_rgba(212,175,55,0.4)]"
                       : "text-gray-400 hover:text-white"
@@ -85,30 +80,40 @@ const UserNavbar: React.FC = () => {
           </div>
 
           <div className="flex items-center space-x-8">
+            {/* Search Bar... (same as your original) */}
             <div className="hidden md:flex items-center group">
               <div className="relative flex items-center">
                 <FaSearch className="absolute left-4 text-gray-500 group-focus-within:text-[#d4af37] transition-colors w-3 h-3" />
                 <input
                   type="text"
                   placeholder="SEARCH"
-                  className="bg-black/60 border border-white/10 rounded-xl pl-10 pr-6 py-2.5 transition-all duration-500 focus:border-[#d4af37]/40 focus:bg-black w-44 focus:w-60 text-white placeholder-gray-600 text-[10px] font-black tracking-widest focus:outline-none cursor-text"
+                  className="bg-black/60 border border-white/10 rounded-xl pl-10 pr-6 py-2.5 transition-all duration-500 focus:border-[#d4af37]/40 focus:bg-black w-44 focus:w-60 text-white placeholder-gray-600 text-[10px] font-black tracking-widest focus:outline-none"
                 />
               </div>
             </div>
 
             <div className="flex items-center">
-              {user ? (
-                <Link
-                  to="/account"
-                  className="flex items-center space-x-3 bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl border border-white/10 transition-all duration-300 group cursor-pointer"
-                >
-                  <div className="w-6 h-6 rounded-lg bg-[#d4af37]/20 flex items-center justify-center pointer-events-none">
-                    <FaUser className="w-2.5 h-2.5 text-[#d4af37]" />
-                  </div>
-                  <span className="text-[10px] font-black tracking-[0.2em] uppercase">
-                    {user.username || user.name || "Account"}
-                  </span>
-                </Link>
+              {userInfo ? (
+                <div className="flex items-center space-x-4">
+                  {/* If user is an ORG (Admin), maybe show a special link */}
+                  {userInfo.role === 'org' && (
+                    <Link to="/admin" className="text-[10px] text-[#d4af37] font-black tracking-widest hover:underline">
+                      DASHBOARD
+                    </Link>
+                  )}
+                  
+                  <Link
+                    to="/account"
+                    className="flex items-center space-x-3 bg-white/5 hover:bg-white/10 text-white px-5 py-2.5 rounded-xl border border-white/10 transition-all duration-300 group cursor-pointer"
+                  >
+                    <div className="w-6 h-6 rounded-lg bg-[#d4af37]/20 flex items-center justify-center">
+                      <FaUser className="w-2.5 h-2.5 text-[#d4af37]" />
+                    </div>
+                    <span className="text-[10px] font-black tracking-[0.2em] uppercase">
+                      ACCOUNT
+                    </span>
+                  </Link>
+                </div>
               ) : (
                 <Link
                   to="/login"
