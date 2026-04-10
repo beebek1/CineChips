@@ -14,5 +14,11 @@ export interface HallFormData {
   rowCount: number;
   colCount: number;
   basePrice: number;
-  vipRowPrice: number;
+  vipPrice: number;
+}
+
+export interface HallResponse<T>{
+  success: boolean,
+  message: string,
+  data: T
 }

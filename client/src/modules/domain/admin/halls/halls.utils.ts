@@ -6,5 +6,5 @@ export const defaultHallForm = {
   rowCount: 10,
   colCount: 15,
   basePrice: 500,
-  vipRowPrice: 800,
+  vipPrice: 800,
 };

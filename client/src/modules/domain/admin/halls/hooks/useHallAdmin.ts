@@ -21,10 +21,10 @@ export const useHallAdmin = () => {
     setLoading(true);
     try {
       const res = await getAllHallsApi();
-      setHalls((res as any)?.data?.halls ?? []);
-    } catch {
+      setHalls((res as any)?.data?.data ?? []);
+    } catch(err: any) {
       setHalls([]);
-      toast.error("Failed to fetch halls");
+      toast.error(err.response?.data?.message ?? "Failed to load Halls");
     } finally {
       setLoading(false);
     }
@@ -48,7 +48,7 @@ export const useHallAdmin = () => {
       rowCount: hall.total_rows,
       colCount: hall.total_columns,
       basePrice: hall.basePrice,
-      vipRowPrice: hall.vipPrice,
+      vipPrice: hall.vipPrice,
     });
     setIsModalOpen(true);
   };
@@ -62,9 +62,11 @@ export const useHallAdmin = () => {
     setSubmitting(true);
     try {
       if (editingId) {
+        console.log("this is editing")
         const res = await editHallApi(editingId, formData);
-        toast.success((res as any)?.data?.message ?? "Hall updated");
+        toast.success(res.data?.message ?? "Hall updated");
       } else {
+        console.log("this is creating")
         const res = await createHallApi(formData);
         toast.success((res as any)?.data?.message ?? "Hall added");
       }
