@@ -17,7 +17,7 @@ const __dirname = path.dirname(__filename);
 // Middleware
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://cine-chips.vercel.app/",
     credentials: true,
   }),
 );
