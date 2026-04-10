@@ -4,35 +4,44 @@ import type {
   SeatRow,
   BookingTicket,
   MovieLite,
+  BookingSummary,
 } from "./booking.types";
 
-export const getShowTimes = () =>
-  apiClient.get<DateSchedule[]>("api/cinema/get-showtime");
+export interface ApiResponse<T> {
+  success: boolean;
+  message?: string;
+  data: T;
+}
 
+export const getShowTimes = () => apiClient.get<DateSchedule[]>("api/showtime");
+
+// FIXED: Defining the structure so res.data.data works correctly
 export const getSeatsByShowtime = (showtimeId: string | number) =>
-  apiClient.get<SeatRow[]>(`api/cinema/seats/showtime/${showtimeId}`);
+  apiClient.get<ApiResponse<{ rows: SeatRow[]; hall: { vipPrice?: number } }>>(
+    `api/seat/${showtimeId}`,
+  );
 
 export const bookSeatApi = (data: {
-  showtimeId: string | number;
+  showtimeSeatId: string | number;
   seatIds: (string | number)[];
-}) => apiClient.patch<void>("api/cinema/seats/book", data);
-
-export const addStripeApi = (data: any) =>
-  apiClient.post("/api/payment/stripe", data);
-
-export const getBookingApi = (id: string | number) =>
-  apiClient.get<BookingTicket>(`api/booking/get/${id}`);
-
-export const addBookingApi = (data: any) =>
-  apiClient.post<{ id: string }>("api/booking/add", data);
-
-export const getAllMoviesApi = () =>
-  apiClient.get<MovieLite[]>("api/movie/getall");
-
-export const deleteBookingApi = (editingId: string | number) =>
-  apiClient.delete<void>(`api/booking/delete/${editingId}`);
+}) => apiClient.patch<ApiResponse<null>>("api/seat/book", data);
 
 export const releaseSeatApi = (data: {
   showtimeId: string | number;
   seatIds: (string | number)[];
-}) => apiClient.patch<void>("api/cinema/seats/release", data);
+}) => apiClient.patch<ApiResponse<null>>("api/seat/release", data);
+
+
+export const addStripeApi = (data: { finalAmount: number }) =>
+  apiClient.post<{ clientSecret: string }>("/api/payment", data);
+
+export const getBookingApi = () =>
+  apiClient.get<BookingTicket>(`api/booking`);
+
+export const addBookingApi = (data: BookingSummary) =>
+  apiClient.post<ApiResponse<null>>("api/booking", data);
+
+export const deleteBookingApi = (editingId: string | number) =>
+  apiClient.delete<ApiResponse<null>>(`api/booking/${editingId}`);
+
+export const getAllMoviesApi = () => apiClient.get<MovieLite[]>("api/movies");

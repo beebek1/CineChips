@@ -72,8 +72,8 @@ export const buildSchedules = (showtimes: any[]): DateSchedule[] => {
     if (!dateMap[date][hallKey]) {
       dateMap[date][hallKey] = {
         hallId: s.hall_id,
-        name: s.hallModel?.name ?? `Hall ${s.hall_id}`,
-        location: s.hallModel?.location ?? "",
+        name: s.CinemaHalls?.name ?? `Hall ${s.hall_id}`,
+        location: s.CinemaHalls?.location ?? "unknown location",
         price: s.price,
         langMap: {},
       };

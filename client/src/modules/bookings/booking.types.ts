@@ -34,11 +34,11 @@ export type ActiveBooking = {
   movieId: string | number;
   movieTitle: string;
   genre: string;
-  schedule: DateSchedule | null;
-  hall: HallSchedule | null;
-  showing: Showing | null;
-  slot: Slot | null;
-  showtimeId?: string | number;
+  schedule: DateSchedule;
+  hall: HallSchedule ;
+  showing: Showing ;
+  slot: Slot ;
+  showtimeId: string | number;
 };
 
 export type ShowtimeSeat = {
@@ -69,4 +69,15 @@ export type BookingTicket = {
   totalPrice: number;
   language: string;
   image: string;
+};
+
+export type BookingSummary = {
+  booking_id: string;
+  movie_name: string;
+  hall_name?: string;
+  show_time: string;
+  show_date: string;
+  booked_seats: string;
+  total_price: number;
+  showtime_id: string | number;
 };
