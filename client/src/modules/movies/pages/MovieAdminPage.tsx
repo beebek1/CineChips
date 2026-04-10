@@ -24,8 +24,6 @@ const MovieAdminPage: React.FC = () => {
     removeMovie,
   } = useMovies();
 
-  console.log("this is filtered", filteredMovies);
-
   const {
     formData,
     preview,

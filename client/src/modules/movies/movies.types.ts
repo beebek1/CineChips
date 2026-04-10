@@ -1,9 +1,9 @@
 export type MovieStatus = "Showing" | "Upcoming";
 
-export interface MovieResponse {
+export interface MovieResponse<T> {
   success: boolean;
   message: string;
-  data: Movie[]; 
+  data: T; 
 }
 
 export type Movie = {

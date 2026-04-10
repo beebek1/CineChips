@@ -27,7 +27,7 @@ export function useMoviesByStatus(status: MovieStatus) {
 
         try {
         const res = await getAllMoviesApi();
-        const raw = Array.isArray(res.data) ? res.data : [];
+        const raw = Array.isArray(res.data.data) ? res.data.data : [];
 
         const filtered = raw.filter((m: Movie) => m.status === status);
 

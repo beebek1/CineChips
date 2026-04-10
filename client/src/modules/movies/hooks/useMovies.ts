@@ -21,8 +21,8 @@ export const useMovies = () => {
     try {
       const res = await getAllMoviesApi();
       setMovies(Array.isArray(res.data.data) ? res.data.data : []);
-    } catch {
-      toast.error("Failed to load movies");
+    } catch (err: any) {
+      toast.error(err.res.data.message);
     } finally {
       setLoading(false);
     }
@@ -53,11 +53,19 @@ export const useMovies = () => {
     setSubmitting(true);
     try {
       if (editingId) {
-        await updateMovieApi(editingId, data);
-        toast.success("Movie updated");
+        const res = await updateMovieApi(editingId, data);
+        if (res.data.success) {
+          toast.success("Movie added successfully");
+        } else {
+          toast.error(res.data.message);
+        }
       } else {
-        await addMovieApi(data);
-        toast.success("Movie added");
+        const res = await addMovieApi(data);
+        if (res.data.success) {
+          toast.success("Movie added successfully");
+        } else {
+          toast.error(res.data.message);
+        }
       }
       setIsModalOpen(false);
       await fetchMovies();
@@ -74,8 +82,12 @@ export const useMovies = () => {
     if (!window.confirm("Permanently remove this movie from the archive?"))
       return;
     try {
-      await deleteMovieApi(id);
-      toast.success("Movie deleted");
+      const res = await deleteMovieApi(id);
+      if (res.data.success) {
+        toast.success("Movie deleted successfully");
+      } else {
+        toast.error(res.data.message);
+      }
       setMovies((prev) => prev.filter((m) => m.movie_id !== id));
     } catch (err: any) {
       toast.error(err?.response?.data?.message ?? "Failed to delete");
