@@ -6,7 +6,7 @@ import AdminKpiCards from "../components/AdminKpiCards";
 import AdminSecondaryStats from "../components/AdminSecondaryStats";
 import UpcomingShowsTable from "../components/UpcomingShowsTable";
 import HallUsageCard from "../components/HallUsageCard";
-import LanguageBreakdownCard from "../components/LanguageBreakDownCard";
+import LanguageBreakdownCard from "../components/LanguageBreakdownCard";
 
 const AdminDashboardPage: React.FC = () => {
   const { showtimes, halls, movies, loading, stats } = useAdminDashboard();
