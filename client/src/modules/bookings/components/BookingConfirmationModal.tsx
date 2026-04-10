@@ -7,7 +7,7 @@ import type { ActiveBooking, ShowtimeSeat } from "../booking.types";
 
 type Props = {
   isOpen: boolean;
-  bookingId: string | null;
+  bookingId: string;
   booking: ActiveBooking;
   selectedSeats: ShowtimeSeat[];
   finalAmount: number;
@@ -20,6 +20,7 @@ const BookingConfirmationModal: React.FC<Props> = ({
   selectedSeats,
   finalAmount,
 }) => {
+  console.log("i reached here")
   const navigate = useNavigate();
   const hasCalledApi = useRef(false);
 
@@ -41,6 +42,7 @@ const BookingConfirmationModal: React.FC<Props> = ({
   };
 
   useEffect(() => {
+    console.log("i reached here")
     if (isOpen && !hasCalledApi.current && booking?.schedule) {
       hasCalledApi.current = true;
 

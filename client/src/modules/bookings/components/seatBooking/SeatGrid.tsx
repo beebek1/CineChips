@@ -21,7 +21,7 @@ const SeatGrid: React.FC<Props> = ({ rows, onSeatClick }) => {
             <div className="flex gap-1 md:gap-5">
               {row.seats.map((seat, seatIdx) => {
                 const x = totalSeats > 1 ? seatIdx / (totalSeats - 1) : 0.5;
-                const archHeight = 50;
+                const archHeight = 10;
                 const translateY = -archHeight * 4 * (x - 0.5) * (x - 0.5) + archHeight;
                 const rotationZ = -(2 * x - 1) * 20;
                 const isSelected = seat.status === "selected";
