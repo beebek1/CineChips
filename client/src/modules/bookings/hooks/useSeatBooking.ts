@@ -1,21 +1,20 @@
 import { useEffect, useMemo, useState } from "react";
 import toast from "react-hot-toast";
-import {
-  addStripeApi,
-  bookSeatApi,
-  getSeatsByShowtime,
-} from "../booking.api";
+import { addStripeApi, bookSeatApi, getSeatsByShowtime } from "../booking.api";
+import getUserInfo from "../../../app/guards/authRole";
 import type {
   ActiveBooking,
   HallInfo,
   SeatRow,
   ShowtimeSeat,
 } from "../booking.types";
+import { useNavigate } from "react-router-dom";
 
 const MAX_SEATS = 10;
 const SERVICE_FEE_RATE = 0.05;
 
 export const useSeatBooking = (booking: ActiveBooking | null) => {
+  const navigate = useNavigate();
   const [clientSecret, setClientSecret] = useState("");
   const [rows, setRows] = useState<SeatRow[]>([]);
   const [hall, setHall] = useState<HallInfo | null>(null);
@@ -24,20 +23,23 @@ export const useSeatBooking = (booking: ActiveBooking | null) => {
   const [confirming, setConfirming] = useState(false);
   const [bookingComplete, setBookingComplete] = useState(false);
   const [bookingId, setBookingId] = useState<string | null>(null);
+
   const closePaymentModal = () => setClientSecret("");
 
+  // Fetch seats on mount or showtime change
   useEffect(() => {
-    if (!booking?.showtimeId) return;
-
-    const showtimeId = booking.showtimeId;
+    const showtimeId = booking?.showtimeId;
+    if (!showtimeId) return;
 
     const fetchSeats = async () => {
       setLoading(true);
       try {
         const res = await getSeatsByShowtime(showtimeId);
-        setRows((res as any)?.data?.rows ?? []);
-        setHall((res as any)?.data?.hall ?? null);
-      } catch {
+        const data = res.data?.data;
+        setRows(data?.rows ?? []);
+        setHall(data?.hall ?? null);
+      } catch (err) {
+        toast.error("Failed to load seating arrangement.");
         setRows([]);
       } finally {
         setLoading(false);
@@ -46,6 +48,7 @@ export const useSeatBooking = (booking: ActiveBooking | null) => {
     fetchSeats();
   }, [booking?.showtimeId]);
 
+  // Pricing Logic
   const basePrice = Number(booking?.hall?.price ?? 0);
   const vipPrice = Number(hall?.vipPrice ?? basePrice);
 
@@ -60,37 +63,44 @@ export const useSeatBooking = (booking: ActiveBooking | null) => {
   const serviceFee = Math.round(subtotal * SERVICE_FEE_RATE);
   const finalAmount = subtotal + serviceFee;
 
+  // UI Interaction: Toggle Seats
   const handleSeatClick = (
     rowIdx: number,
     seatIdx: number,
     seat: ShowtimeSeat,
   ) => {
-    if (seat.status === "booked" || seat.status === "reserved") return;
+    if (["booked", "reserved"].includes(seat.status)) return;
 
     const isSelected = selectedSeats.some(
       (s) => s.showtime_seat_id === seat.showtime_seat_id,
     );
+
     if (!isSelected && selectedSeats.length >= MAX_SEATS) {
-      alert(`Max ${MAX_SEATS} seats per booking.`);
+      toast.error(`You can only select up to ${MAX_SEATS} seats.`);
       return;
     }
 
+    // Update Grid UI
     setRows((prev) =>
-      prev.map((row, rI) => {
-        if (rI !== rowIdx) return row;
-        return {
-          ...row,
-          seats: row.seats.map((s, sI) => {
-            if (sI !== seatIdx) return s;
-            return {
-              ...s,
-              status: s.status === "available" ? "selected" : "available",
-            };
-          }),
-        };
-      }),
+      prev.map((row, rI) =>
+        rI !== rowIdx
+          ? row
+          : {
+              ...row,
+              seats: row.seats.map((s, sI) =>
+                sI !== seatIdx
+                  ? s
+                  : {
+                      ...s,
+                      status:
+                        s.status === "available" ? "selected" : "available",
+                    },
+              ),
+            },
+      ),
     );
 
+    // Update Selection List
     setSelectedSeats((prev) =>
       isSelected
         ? prev.filter((s) => s.showtime_seat_id !== seat.showtime_seat_id)
@@ -110,47 +120,52 @@ export const useSeatBooking = (booking: ActiveBooking | null) => {
     setSelectedSeats([]);
   };
 
+  // Payment Initialization
   const handlePayClick = async () => {
+    if (selectedSeats.length === 0) return;
+    const userInfo = await getUserInfo();
+
+    if(!userInfo?.role){
+      navigate("/login");
+      return
+    }
+
     setConfirming(true);
     try {
       const response = await addStripeApi({ finalAmount });
-      setClientSecret((response as any).data.clientSecret);
+      setClientSecret(response.data.clientSecret);
     } catch (err: any) {
       toast.error(
-        err?.response?.data?.message ||
-          err.message ||
-          "Payment failed to initialize.",
+        err?.response?.data?.message || "Payment initialization failed.",
       );
     } finally {
       setConfirming(false);
     }
   };
 
+
   const confirmBooking = async () => {
-    setTimeout(() => setClientSecret(""), 1000);
+    const user = getUserInfo(); 
+    if (!user || !booking?.showtimeId) {
+      toast.error("Session expired. Please log in again.");
+      return;
+    }
+
+    setClientSecret(""); 
     setConfirming(true);
 
     try {
-      const user = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = user?.id ?? null;
-      if (!userId) {
-        toast.error("You must be logged in to book seats.");
-        return;
-      }
-
-      await Promise.all(
-        selectedSeats.map((s) =>
-          bookSeatApi({
-            showtimeId: s.showtime_seat_id,
-            seatIds: userId,
-          }),
-        ),
-      );
+      await bookSeatApi({
+        showtimeSeatId: Number(booking.showtimeId),
+        seatIds: selectedSeats.map((s) => Number(s.showtime_seat_id)),
+      });
 
       const newBookingId = "CHIP-" + Date.now().toString().slice(-8);
       setBookingId(newBookingId);
       setBookingComplete(true);
+      toast.success("Seats secured!");
 
+      // Mark selected seats as booked in the UI
       setRows((prev) =>
         prev.map((row) => ({
           ...row,
@@ -160,17 +175,17 @@ export const useSeatBooking = (booking: ActiveBooking | null) => {
         })),
       );
     } catch (err: any) {
-      alert(
-        err?.response?.data?.message ?? "Booking failed. Please try again.",
-      );
+      const msg = err?.response?.data?.message || "Booking failed.";
+      toast.error(msg);
+      console.error("Booking Error:", err);
     } finally {
       setConfirming(false);
     }
   };
 
   return {
-    MAX_SEATS,
     clientSecret,
+    MAX_SEATS,
     rows,
     hall,
     loading,
@@ -186,6 +201,6 @@ export const useSeatBooking = (booking: ActiveBooking | null) => {
     cancelSelection,
     handlePayClick,
     confirmBooking,
-    closePaymentModal
+    closePaymentModal,
   };
 };
