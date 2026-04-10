@@ -7,10 +7,10 @@ import type {
 export const LANGUAGES = ["English", "Nepali", "Hindi"] as const;
 
 export const defaultForm: ScheduleFormData = {
-  movieId: "",
-  hallId: "",
-  showDate: "",
-  showTime: "",
+  movie_id: 0,
+  hall_id: 0,
+  show_date: "",
+  show_time: "",
   language: "English",
   price: "",
 };
@@ -41,19 +41,19 @@ export const toMinutes = (timeStr?: string) => {
 };
 
 export const toForm = (s: Schedule): ScheduleFormData => ({
-  movieId: String(s.movie_id ?? ""),
-  hallId: String(s.hall_id ?? ""),
-  showDate: (s.show_date ?? "").split("T")[0],
-  showTime: (s.show_time ?? "").slice(0, 5),
+  movie_id: Number(s.movie_id ?? ""),
+  hall_id: Number(s.hall_id ?? ""),
+  show_date: (s.show_date ?? "").split("T")[0],
+  show_time: (s.show_time ?? "").slice(0, 5),
   language: s.language ?? "English",
   price: String(s.price ?? ""),
 });
 
 export const toPayload = (f: ScheduleFormData) => ({
-  movie_id: f.movieId,
-  hall_id: f.hallId,
-  show_date: f.showDate,
-  show_time: f.showTime,
+  movie_id: Number(f.movie_id),
+  hall_id: Number(f.hall_id),
+  show_date: f.show_date,
+  show_time: f.show_time,
   language: f.language,
   price: Number(f.price),
 });

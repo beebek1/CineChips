@@ -7,11 +7,11 @@ import type {
 } from "./schedules.types";
 
 export const getShowTimes = () =>
-  apiClient.get<Schedule[]>("api/cinema/get-showtime");
+  apiClient.get<Schedule[]>("api/showtime");
 
-export const getAllHalls = () => apiClient.get<Hall[]>("api/cinema/get-all");
+export const getAllHalls = () => apiClient.get<Hall[]>("api/cinema");
 
-export const getAllMovie = () => apiClient.get<Movie[]>("api/movie/getall");
+export const getAllMovie = () => apiClient.get<Movie[]>("api/movies");
 
 /**
  * Aggregator for fetching all necessary dependencies for
@@ -26,17 +26,17 @@ export const getSchedulesBundleApi = async () => {
 
   return {
     schedules:
-      (showRes as any)?.data?.showtimes ??
-      (showRes as any)?.data?.schedules ??
+      (showRes as any)?.data?.data ??
+      (showRes as any)?.data?.data ??
       (showRes as any)?.data ??
       [],
-    halls: (hallRes as any)?.data?.halls ?? (hallRes as any)?.data ?? [],
-    movies: (movieRes as any)?.data?.movies ?? (movieRes as any)?.data ?? [],
+    halls: (hallRes as any)?.data?.data ?? (hallRes as any)?.data ?? [],
+    movies: (movieRes as any)?.data?.data ?? (movieRes as any)?.data ?? [],
   };
 };
 
 export const createScheduleApi = (payload: ScheduleFormData) =>
-  apiClient.post<{ message: string }>("api/cinema/showtimes", payload);
+  apiClient.post<{ message: string }>("api/showtime/", payload);
 
 export const removeScheduleApi = (id: number | string) =>
-  apiClient.delete<{ message: string }>(`api/cinema/showtime/delete/${id}`);
+  apiClient.delete<{ message: string }>(`api/showtime/${id}`);

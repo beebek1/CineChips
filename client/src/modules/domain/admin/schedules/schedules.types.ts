@@ -27,10 +27,10 @@ export interface Schedule {
 }
 
 export interface ScheduleFormData {
-  movieId: string;
-  hallId: string;
-  showDate: string;
-  showTime: string;
+  movie_id: string;
+  hall_id: string;
+  show_date: string;
+  show_time: string;
   language: string;
   price: string;
 }
