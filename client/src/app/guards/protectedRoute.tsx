@@ -18,9 +18,8 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   useEffect(() => {
     const run = async () => {
-      const resolvedRole = await getUserRole();
-      console.log("this is userrole", resolvedRole);
-      setRole(resolvedRole);
+      const userInfo = await getUserRole();
+      setRole(userInfo?.role ?? null);
       setLoading(false);
     };
     run();

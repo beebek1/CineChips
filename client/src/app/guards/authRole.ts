@@ -7,6 +7,7 @@ type JwtPayload = {
   exp?: number;
 };
 
+
 const TOKEN_KEY = "jwtToken";
 
 const getToken = (): string | null => localStorage.getItem(TOKEN_KEY);
@@ -45,7 +46,7 @@ export const getUserIdFromToken = (): string | null => {
   return String(decoded.id);
 };
 
-const getUserRole = async (): Promise<string | null> => {
+const getUserInfo = async (): Promise<JwtPayload | null> => {
   const token = getToken();
   if (!token || isExpired(token)) {
     clearToken();
@@ -54,13 +55,14 @@ const getUserRole = async (): Promise<string | null> => {
 
   const decoded = decodeToken(token);
   const role = decoded?.role ?? null;
+  const id = decoded?.id ?? null;
 
-  if (!role) {
+  if (!role || !id) {
     clearToken();
     return null;
   }
 
-  return role;
+  return { id, role };
 };
 
-export default getUserRole;
+export default getUserInfo;

@@ -17,5 +17,9 @@ psd
 thumb
 sketch
 
+# Ignore macOS system files
+.DS_Store
+**/.DS_Store
+
 # End of https://www.toptal.com/developers/gitignore/api/react.env
 .env
