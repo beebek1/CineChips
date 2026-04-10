@@ -27,10 +27,7 @@ export const useMovieBookingDashboard = (movie?: MovieLite) => {
       try {
         const res = await getShowTimes();
         const raw =
-          (res as any)?.data?.showtimes ??
-          (res as any)?.data?.schedules ??
-          (res as any)?.data ??
-          [];
+          (res as any)?.data?.data ?? [];
         const mine = raw.filter(
           (s: any) => String(s.movie_id) === String(movie.movie_id),
         );
